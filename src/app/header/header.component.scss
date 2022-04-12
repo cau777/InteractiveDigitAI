@@ -1,0 +1,7 @@
+@use 'sass:map';
+@use "./src/styles" as styles;
+
+header {
+  background-color: map.get(styles.$primary-theme, 500);
+  color: map.get(styles.$primary-theme-contrast, 300);
+}

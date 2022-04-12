@@ -1,1 +1,48 @@
-/* You can add global styles to this file, and also import other style files */
+
+@use 'sass:map';
+@use '@angular/material' as mat;
+
+/* Importing Bootstrap SCSS file. */
+@import '~bootstrap/scss/bootstrap';
+//@include mat.core();
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+$theme: mat.define-light-theme(
+    (
+      color:(
+        primary: mat.define-palette(mat.$deep-purple-palette),
+        accent: mat.define-palette(mat.$amber-palette),
+        warn: mat.define-palette(mat.$red-palette)
+      ),
+    )
+);
+
+$colors-theme: map.get($theme, color);
+$primary-theme: map.get($colors-theme, primary);
+$primary-theme-contrast: map.get($primary-theme, contrast);
+$accent-theme: map.get($colors-theme, accent);
+$warn-theme: map.get($colors-theme, warn);
+$background-theme: map.get($theme, background);
+
+//@include mat.all-component-themes($theme);
+
+body {
+  background-color: map.get($background-theme, background);
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: inherit;
+}
