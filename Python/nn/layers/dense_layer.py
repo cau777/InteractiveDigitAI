@@ -1,0 +1,51 @@
+import numpy as np
+
+from nn.layers.nn_layer import NNLayer
+from nn.lr_optimizers.lr_optimizer import LrOptimizer
+from nn.training_config import TrainingConfig
+
+
+def create_random(in_values: int, out_values: int, weights_optimizer: LrOptimizer, biases_optimizer: LrOptimizer,
+                  biases_enabled: bool = True):
+    std_dev = out_values ** -0.5
+    weights = np.random.normal(0, std_dev, (out_values, in_values))
+    biases = np.zeros((out_values, 1))
+    return DenseLayer(weights, biases, biases_enabled, weights_optimizer, biases_optimizer)
+
+
+class DenseLayer(NNLayer):
+    def __init__(self, weights: np.ndarray, biases: np.ndarray, biases_enabled: bool, weights_optimizer: LrOptimizer,
+                 biases_optimizer: LrOptimizer):
+        self.weights = weights
+        self.biases = biases
+        self.weights_grad = weights * 0
+        self.biases_grad = biases * 0
+        self.biases_enabled = biases_enabled
+        self.weights_optimizer = weights_optimizer
+        self.biases_optimizer = biases_optimizer
+
+    def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
+        result = self.weights @ inputs
+        if self.biases_enabled:
+            result += self.biases
+        return result
+
+    def backpropagate_gradient(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
+                               config: TrainingConfig):
+        factor = 1 / config.batch_size
+
+        weights_error = current_gradient @ inputs.T
+        self.weights_grad += factor * weights_error
+
+        if self.biases_enabled:
+            self.biases_grad += factor * current_gradient
+
+        return self.weights.T @ current_gradient
+
+    def train(self, config: TrainingConfig):
+        self.weights += self.weights_optimizer.optimize(self.weights_grad, config)
+        self.weights_grad *= 0
+
+        if self.biases_enabled:
+            self.biases += self.biases_optimizer.optimize(self.biases_grad, config)
+            self.biases_grad *= 0
