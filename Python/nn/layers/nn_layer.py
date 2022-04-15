@@ -1,7 +1,7 @@
 import numpy as np
 from abc import abstractmethod, ABC
 
-from nn.training_config import TrainingConfig
+from nn import TrainingConfig
 
 
 class NNLayer(ABC):

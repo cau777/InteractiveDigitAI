@@ -1,9 +1,8 @@
 import numpy as np
 
-from nn.training_config import TrainingConfig
-from nn.training_example import TrainingExample
-from nn.layers.nn_layer import NNLayer
-from nn.loss_functions.loss_function import LossFunction
+from nn import TrainingConfig, TrainingExample
+from nn.layers import NNLayer
+from nn.loss_functions import LossFunction
 from nn.utils import select_random
 from nn.measure_trackers import create_tracker
 

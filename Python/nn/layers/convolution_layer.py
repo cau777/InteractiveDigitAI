@@ -1,21 +1,9 @@
 import numpy as np
 
-from nn.layers.nn_layer import NNLayer
-from nn.lr_optimizers.lr_optimizer import LrOptimizer
-from nn.training_config import TrainingConfig
+from nn.layers import NNLayer
+from nn.lr_optimizers import LrOptimizer
+from nn import TrainingConfig
 from nn.utils import get_dims_after_filter
-
-
-def build_random(out_channels: int, in_channels: int, kernel_size: int, optimizer: LrOptimizer, stride: int = 1,
-                 padding: int = 0):
-    if stride < 1:
-        raise ValueError("Stride can't be less than 1")
-    if padding < 0:
-        raise ValueError("Padding can't be negative")
-
-    std_dev = (out_channels * kernel_size * kernel_size) ** -0.5  # TODO: improve initialization
-    kernels = np.random.normal(0, std_dev, (out_channels, in_channels, kernel_size, kernel_size))
-    return ConvolutionLayer(kernels, optimizer, stride, padding)
 
 
 def pad3d(array: np.ndarray, padding: int):
@@ -55,6 +43,18 @@ class ConvolutionLayer(NNLayer):
         self.out_channels = kernels.shape[0]
         self.in_channels = kernels.shape[1]
         self.kernel_size = kernels.shape[2]
+
+    @staticmethod
+    def create_random(out_channels: int, in_channels: int, kernel_size: int, optimizer: LrOptimizer, stride: int = 1,
+                      padding: int = 0):
+        if stride < 1:
+            raise ValueError("Stride can't be less than 1")
+        if padding < 0:
+            raise ValueError("Padding can't be negative")
+
+        std_dev = (out_channels * kernel_size * kernel_size) ** -0.5  # TODO: improve initialization
+        kernels = np.random.normal(0, std_dev, (out_channels, in_channels, kernel_size, kernel_size))
+        return ConvolutionLayer(kernels, optimizer, stride, padding)
 
     def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
         padded = pad3d(inputs, self.padding)

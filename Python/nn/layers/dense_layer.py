@@ -1,16 +1,8 @@
 import numpy as np
 
-from nn.layers.nn_layer import NNLayer
-from nn.lr_optimizers.lr_optimizer import LrOptimizer
-from nn.training_config import TrainingConfig
-
-
-def create_random(in_values: int, out_values: int, weights_optimizer: LrOptimizer, biases_optimizer: LrOptimizer,
-                  biases_enabled: bool = True):
-    std_dev = out_values ** -0.5
-    weights = np.random.normal(0, std_dev, (out_values, in_values))
-    biases = np.zeros((out_values, 1))
-    return DenseLayer(weights, biases, biases_enabled, weights_optimizer, biases_optimizer)
+from nn.layers import NNLayer
+from nn.lr_optimizers import LrOptimizer
+from nn import TrainingConfig
 
 
 class DenseLayer(NNLayer):
@@ -23,6 +15,20 @@ class DenseLayer(NNLayer):
         self.biases_enabled = biases_enabled
         self.weights_optimizer = weights_optimizer
         self.biases_optimizer = biases_optimizer
+
+    @staticmethod
+    def create_random(in_values: int, out_values: int, weights_optimizer: LrOptimizer, biases_optimizer: LrOptimizer,
+                      biases_enabled: bool = True):
+        if in_values < 1:
+            raise ValueError("in_values can't be less than 1")
+
+        if out_values < 1:
+            raise ValueError("out_values can't be less than 1")
+
+        std_dev = out_values ** -0.5
+        weights = np.random.normal(0, std_dev, (out_values, in_values))
+        biases = np.zeros((out_values, 1))
+        return DenseLayer(weights, biases, biases_enabled, weights_optimizer, biases_optimizer)
 
     def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
         result = self.weights @ inputs

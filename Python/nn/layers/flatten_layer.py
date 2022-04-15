@@ -1,7 +1,7 @@
 import numpy as np
 
-from nn.layers.nn_layer import NNLayer
-from nn.training_config import TrainingConfig
+from nn.layers import NNLayer
+from nn import TrainingConfig
 
 
 class FlattenLayer(NNLayer):

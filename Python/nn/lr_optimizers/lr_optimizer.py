@@ -1,5 +1,5 @@
 import numpy as np
-from nn.training_config import TrainingConfig
+from nn import TrainingConfig
 from abc import ABC, abstractmethod
 
 

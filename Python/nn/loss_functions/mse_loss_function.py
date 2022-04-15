@@ -1,6 +1,6 @@
 import numpy as np
 
-from nn.loss_functions.loss_function import LossFunction
+from nn.loss_functions import LossFunction
 
 
 class MseLossFunction(LossFunction):

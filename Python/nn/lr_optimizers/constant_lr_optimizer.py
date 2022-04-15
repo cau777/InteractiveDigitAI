@@ -1,7 +1,7 @@
 import numpy as np
 
-from nn.lr_optimizers.lr_optimizer import LrOptimizer
-from nn.training_config import TrainingConfig
+from nn.lr_optimizers import LrOptimizer
+from nn import TrainingConfig
 
 
 class ConstantLrOptimizer(LrOptimizer):

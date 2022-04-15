@@ -4,7 +4,7 @@ import numpy as np
 
 from nn.loss_functions.mse_loss_function import MseLossFunction
 from nn.lr_optimizers.adam_optimizer import AdamLrOptimizer
-from nn.layers.dense_layer import DenseLayer, create_random
+from nn.layers.dense_layer import DenseLayer
 from nn.utils import init_random
 from nn.training_config import TrainingConfig
 
@@ -28,7 +28,7 @@ class MyTestCase(unittest.TestCase):
         expected = np.random.rand(10, 1)
 
         loss_func = MseLossFunction()
-        layer = create_random(10, 10, AdamLrOptimizer(), AdamLrOptimizer())
+        layer = DenseLayer.create_random(10, 10, AdamLrOptimizer(), AdamLrOptimizer())
 
         for e in range(200):
             config = TrainingConfig(e + 1, 1)
@@ -46,9 +46,9 @@ class MyTestCase(unittest.TestCase):
 
         loss_func = MseLossFunction()
         layers = [
-            create_random(10, 64, AdamLrOptimizer(), AdamLrOptimizer()),
-            create_random(64, 64, AdamLrOptimizer(), AdamLrOptimizer()),
-            create_random(64, 10, AdamLrOptimizer(), AdamLrOptimizer()),
+            DenseLayer.create_random(10, 64, AdamLrOptimizer(), AdamLrOptimizer()),
+            DenseLayer.create_random(64, 64, AdamLrOptimizer(), AdamLrOptimizer()),
+            DenseLayer.create_random(64, 10, AdamLrOptimizer(), AdamLrOptimizer()),
         ]
 
         for e in range(75):
