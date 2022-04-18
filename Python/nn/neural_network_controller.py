@@ -3,7 +3,7 @@ import numpy as np
 from nn import TrainingConfig, TrainingExample
 from nn.layers import NNLayer
 from nn.loss_functions import LossFunction
-from nn.utils import select_random
+from nn.utils import select_random, split_array
 from nn.measure_trackers import create_tracker
 
 
@@ -13,33 +13,43 @@ class NeuralNetworkController:
         self.loss_func = loss_func
         self.version = version
 
-    def evaluate(self, inputs: np.ndarray):
+    def evaluate_single(self, inputs: np.ndarray) -> np.ndarray:
+        return self.evaluate_batch(np.stack([inputs]))[0]
+
+    def evaluate_batch(self, inputs: np.ndarray):
         return self.main_layer.feed_forward(inputs)
 
-    def classify(self, inputs: np.ndarray):
-        return self.main_layer.feed_forward(inputs).argmax()
+    def classify_single(self, inputs: np.ndarray) -> int:
+        return self.classify_batch(np.stack([inputs]))[0]
+
+    def classify_batch(self, inputs: np.ndarray):
+        print(self.main_layer.feed_forward(inputs).shape)
+        return np.argmax(self.main_layer.feed_forward(inputs), -1)
 
     def train(self, data: list[TrainingExample], epochs: int, batch_size: int = 16, measure: list[str] = None) \
             -> list[dict[str]]:
+        if not measure:
+            measure = ["avg_loss"]
 
         measures_trackers = [create_tracker(m) for m in measure]
         measures_result = []
 
-        # TODO: mini-batch arrays
         for e in range(epochs):
             config = TrainingConfig(self.version, batch_size)
-            mini_batch: list[TrainingExample] = select_random(data, batch_size)
 
-            for example in mini_batch:
-                inputs, label = example.inputs, example.label
+            mini_batch_examples: list[TrainingExample] = select_random(data, batch_size)
+            inputs = np.stack([example.inputs for example in mini_batch_examples])
+            labels = np.stack([example.label for example in mini_batch_examples])
 
-                outputs = self.main_layer.feed_forward(inputs)
-                loss = self.loss_func.calc_loss(label, outputs)
-                loss_grad = self.loss_func.calc_loss_gradient(label, outputs)
+            outputs = self.main_layer.feed_forward(inputs)
+            loss = self.loss_func.calc_loss(labels, outputs)
+            loss_grad = self.loss_func.calc_loss_gradient(labels, outputs)
 
-                self.main_layer.backpropagate_gradient(inputs, outputs, loss_grad, config)
+            self.main_layer.backpropagate_gradient(inputs, outputs, loss_grad, config)
+
+            for b in range(batch_size):
                 for t in measures_trackers:
-                    t.track(inputs, outputs, label, loss)
+                    t.track(inputs[b], outputs[b], labels[b], loss[b])
 
             batch_measures = dict()
             for t in measures_trackers:
@@ -52,12 +62,23 @@ class NeuralNetworkController:
 
         return measures_result
 
-    def test(self, data: list[TrainingExample]):
-        total_loss = 0
+    def test(self, data: list[TrainingExample], measure: list[str] = None, batch_size: int = 16):
+        if not measure:
+            measure = ["avg_loss"]
 
-        for example in data:
-            outputs = self.main_layer.feed_forward(example.inputs)
-            loss = self.loss_func.calc_loss(example.label, outputs)
-            total_loss += loss.sum() / loss.size
+        measures_trackers = [create_tracker(m) for m in measure]
 
-        return total_loss / len(data)
+        for dataset in split_array(data, batch_size):
+            inputs = np.stack([example.inputs for example in dataset])
+            labels = np.stack([example.label for example in dataset])
+            outputs = self.main_layer.feed_forward(inputs)
+            loss = self.loss_func.calc_loss(labels, outputs)
+
+            for b in range(len(dataset)):
+                for t in measures_trackers:
+                    t.track(inputs[b], outputs[b], labels[b], loss[b])
+
+        measures_result = dict()
+        for t in measures_trackers:
+            t.record(measures_result)
+        return measures_result

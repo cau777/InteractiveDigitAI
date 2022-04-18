@@ -15,13 +15,13 @@ class MyTestCase(unittest.TestCase):
         init_random()
 
     def test_softmax(self):
-        arr = np.random.rand(10, 1)
+        arr = np.random.rand(1, 10)
         soft = softmax(arr)
         self.assertGreater(0.0001, abs(1 - np.sum(soft)))
 
     def test_training(self):
-        inputs = np.random.rand(100, 1)
-        expected = np.zeros((10, 1))
+        inputs = np.random.rand(1, 100)
+        expected = np.zeros((1, 10))
         expected[0] = 1
 
         loss_func = CrossEntropyLossFunction()

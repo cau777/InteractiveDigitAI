@@ -24,8 +24,8 @@ class MyTestCase(unittest.TestCase):
         init_random()
 
     def test_training(self):
-        inputs = np.random.rand(10, 1)
-        expected = np.random.rand(10, 1)
+        inputs = np.random.rand(1, 10)
+        expected = np.random.rand(1, 10)
 
         loss_func = MseLossFunction()
         layer = DenseLayer.create_random(10, 10, AdamLrOptimizer(), AdamLrOptimizer())
@@ -41,8 +41,8 @@ class MyTestCase(unittest.TestCase):
         self.assertLess(final_loss.mean(), 0.01)
 
     def test_training_3_layers(self):
-        inputs = np.random.rand(10, 1)
-        expected = np.random.rand(10, 1)
+        inputs = np.random.rand(1, 10)
+        expected = np.random.rand(1, 10)
 
         loss_func = MseLossFunction()
         layers = [

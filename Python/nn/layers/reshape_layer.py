@@ -11,11 +11,8 @@ class ReshapeLayer(NNLayer):
         self.shape = shape
 
     def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
-        return inputs.reshape(self.shape)
+        return inputs.reshape((inputs.shape[0], *self.shape))
 
     def backpropagate_gradient(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
                                config: TrainingConfig):
         return current_gradient.reshape(inputs.shape)
-
-
-

@@ -5,7 +5,7 @@ from nn.loss_functions import LossFunction
 
 def softmax(x: np.ndarray):
     e = np.exp(x - np.max(x))
-    return e / np.sum(e, axis=-2)
+    return e / np.sum(e, axis=-1)
 
 
 class CrossEntropyLossFunction(LossFunction):

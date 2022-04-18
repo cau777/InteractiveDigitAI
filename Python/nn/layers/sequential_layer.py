@@ -1,3 +1,5 @@
+from typing import Iterator
+
 import numpy as np
 
 from nn.layers import NNLayer
@@ -33,3 +35,16 @@ class SequentialLayer(NNLayer):
     def train(self, config: TrainingConfig):
         for layer in self.layers:
             layer.train(config)
+
+    def trainable_params_count(self) -> int:
+        return sum(map(lambda layer: layer.trainable_params_count, self.layers))
+
+    def trainable_params(self) -> list[float]:
+        result = []
+        for layer in self.layers:
+            result.extend(layer.trainable_params)
+        return result
+
+    def set_trainable_params(self, params_iterator: Iterator[float]) -> None:
+        for layer in self.layers:
+            layer.set_trainable_params(params_iterator)
