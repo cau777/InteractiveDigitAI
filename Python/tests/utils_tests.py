@@ -1,6 +1,6 @@
 import unittest
 
-from libs.nn.utils import get_dims_after_filter, split_array
+from codebase.nn.utils import get_dims_after_filter, split_array
 
 
 class MyTestCase(unittest.TestCase):

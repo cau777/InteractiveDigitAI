@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 
-from libs.nn import TrainingConfig
-from libs.nn.loss_functions.cross_entropy_loss_function import softmax
-from libs.nn.loss_functions import CrossEntropyLossFunction
-from libs.nn.layers import DenseLayer
-from libs.nn.lr_optimizers import ConstantLrOptimizer
-from libs.nn.utils import init_random
+from codebase.nn import TrainingConfig
+from codebase.nn.loss_functions.cross_entropy_loss_function import softmax
+from codebase.nn.loss_functions import CrossEntropyLossFunction
+from codebase.nn.layers import DenseLayer
+from codebase.nn.lr_optimizers import ConstantLrOptimizer
+from codebase.nn.utils import init_random
 
 
 class MyTestCase(unittest.TestCase):

@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 
-from libs.nn import NeuralNetworkController, TrainingExample
-from libs.nn.layers import SequentialLayer, DenseLayer
-from libs.nn.layers.activation import TanhLayer
-from libs.nn.loss_functions import MseLossFunction
-from libs.nn.lr_optimizers import AdamLrOptimizer
-from libs.nn.utils import init_random
+from codebase.nn import NeuralNetworkController, TrainingExample
+from codebase.nn.layers import SequentialLayer, DenseLayer
+from codebase.nn.layers.activation import TanhLayer
+from codebase.nn.loss_functions import MseLossFunction
+from codebase.nn.lr_optimizers import AdamLrOptimizer
+from codebase.nn.utils import init_random
 
 
 class MyTestCase(unittest.TestCase):

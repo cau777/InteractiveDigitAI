@@ -2,9 +2,9 @@ import unittest
 
 import numpy as np
 
-from libs.nn.utils import init_random
-from libs.nn.layers.max_pool import MaxPoolLayer
-from libs.nn.utils import get_dims_after_filter
+from codebase.nn.utils import init_random
+from codebase.nn.layers.max_pool import MaxPoolLayer
+from codebase.nn.utils import get_dims_after_filter
 
 
 def manual_pooling(array: np.ndarray, size: int, stride: int):

@@ -2,11 +2,11 @@ import unittest
 
 import numpy as np
 
-from libs.nn.loss_functions.mse_loss_function import MseLossFunction
-from libs.nn.lr_optimizers.adam_optimizer import AdamLrOptimizer
-from libs.nn.layers.dense_layer import DenseLayer
-from libs.nn.utils import init_random
-from libs.nn.training_config import TrainingConfig
+from codebase.nn.loss_functions.mse_loss_function import MseLossFunction
+from codebase.nn.lr_optimizers.adam_optimizer import AdamLrOptimizer
+from codebase.nn.layers.dense_layer import DenseLayer
+from codebase.nn.utils import init_random
+from codebase.nn.training_config import TrainingConfig
 
 
 def layers_feed_forward(layers: list[DenseLayer], inputs: np.ndarray):

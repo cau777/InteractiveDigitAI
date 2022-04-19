@@ -2,12 +2,12 @@ import unittest
 
 import numpy as np
 
-from libs.nn.layers import ConvolutionLayer
-from libs.nn.layers import convolution_layer
-from libs.nn.loss_functions import MseLossFunction
-from libs.nn.lr_optimizers import AdamLrOptimizer
-from libs.nn import TrainingConfig
-from libs.nn.utils import init_random
+from codebase.nn.layers import ConvolutionLayer
+from codebase.nn.layers import convolution_layer
+from codebase.nn.loss_functions import MseLossFunction
+from codebase.nn.lr_optimizers import AdamLrOptimizer
+from codebase.nn import TrainingConfig
+from codebase.nn.utils import init_random
 
 
 def get_image_example():

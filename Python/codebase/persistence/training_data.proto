@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package Persistence;
+
+message NdArrayData {
+  repeated double values = 1;
+  repeated uint32 shape = 2;
+}
+
+message EvaluationExampleData {
+  NdArrayData inputs = 1;
+  NdArrayData labels = 2;
+}
+
+message EvaluationDataSet {
+  repeated EvaluationExampleData values = 1;
+}
+
+message ClassificationExampleData {
+  NdArrayData inputs = 1;
+  uint32 cls = 2;
+}
+
+message ClassificationDataSet {
+  repeated ClassificationExampleData values = 1;
+  uint32 classes = 2;
+}
