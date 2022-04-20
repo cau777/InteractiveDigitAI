@@ -9,14 +9,17 @@ import {AiReposService, IAiModel} from "../../ai-repos.service";
 })
 export class TrainMainComponent {
     public content = "";
-    public current: IAiModel|null = null;
+    public current: IAiModel | null = null;
     
     public constructor(private pythonRunner: PythonRunnerService,
                        private aiRepos: AiReposService) {
     }
     
     public async test() {
-        console.log("Result " + await this.pythonRunner.executeScript("test"));
+        console.log("Result 1+1: " + await this.pythonRunner.run("1+1"));
+        await this.pythonRunner.run("a = 1+1");
+        console.log("Result 1+1: " + await this.pythonRunner.run("a"));
+        console.log("Result nn: " + JSON.stringify(await this.pythonRunner.run("n.evaluate_single(np.array([1, 2]))")));
     }
     
     public async getClick() {
@@ -31,5 +34,10 @@ export class TrainMainComponent {
     
     public async create() {
         await this.aiRepos.createAi("test", {version: 0, params: Array.from(new Array(10).keys())});
+    }
+    
+    public async load() {
+        await this.pythonRunner.loadScript("test");
+        console.log("loaded")
     }
 }
