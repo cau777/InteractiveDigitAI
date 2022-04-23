@@ -8,15 +8,6 @@ from codebase.nn.layers import NNLayer
 from codebase.nn.lr_optimizers import LrOptimizer
 from codebase.nn.utils import get_dims_after_filter
 
-
-def pad3d(array: np.ndarray, padding: int):
-    height = array.shape[1]
-    width = array.shape[2]
-    result = np.zeros((array.shape[0], height + 2 * padding, width + 2 * padding))
-    result[:, padding:height + padding, padding:width + padding] = array
-    return result
-
-
 def pad4d(array: np.ndarray, padding: int):
     shape = array.shape
     height = shape[-2]
@@ -26,28 +17,9 @@ def pad4d(array: np.ndarray, padding: int):
     return result
 
 
-def remove_padding3d(array: np.ndarray, padding: int):
-    shape = array.shape
-    return array[:, padding:shape[1] - padding, padding: shape[2] - padding]
-
-
 def remove_padding4d(array: np.ndarray, padding: int):
     shape = array.shape
     return array[:, :, padding:shape[-2] - padding, padding:shape[-1] - padding]
-
-
-def extract_fragments3d(array: np.ndarray, size: int, stride: int):
-    channels = array.shape[0]
-    new_height = (array.shape[1] - size) // stride + 1
-    new_width = (array.shape[2] - size) // stride + 1
-
-    result = np.zeros((new_height, new_width, channels, size, size))
-    for h in range(new_height):
-        for w in range(new_width):
-            h_offset = h * stride
-            w_offset = w * stride
-            result[h][w] = array[:, h_offset:h_offset + size, w_offset:w_offset + size]
-    return result
 
 
 def extract_fragments4d(array: np.ndarray, size: int, stride: int):
@@ -73,7 +45,7 @@ class ConvolutionLayer(NNLayer):
         self.kernel_size = kernels.shape[2]
 
     @staticmethod
-    def create_random(out_channels: int, in_channels: int, kernel_size: int, optimizer: LrOptimizer,
+    def create_random(in_channels: int, out_channels: int, kernel_size: int, optimizer: LrOptimizer,
                       stride: int = 1, padding: int = 0):
         if stride < 1:
             raise ValueError("Stride can't be less than 1")
@@ -160,7 +132,7 @@ class ConvolutionLayer(NNLayer):
     def trainable_params_count(self) -> int:
         return self.kernels.size
 
-    def trainable_params(self) -> list[float]:
+    def get_trainable_params(self) -> list[float]:
         return list(self.kernels.flat)
 
     def set_trainable_params(self, params_iterator: Iterator[float]) -> None:

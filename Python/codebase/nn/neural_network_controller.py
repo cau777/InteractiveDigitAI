@@ -1,3 +1,5 @@
+from typing import Sequence
+
 import numpy as np
 
 from codebase.nn import TrainingConfig, TrainingExample
@@ -26,7 +28,7 @@ class NeuralNetworkController:
         print(self.main_layer.feed_forward(inputs).shape)
         return np.argmax(self.main_layer.feed_forward(inputs), -1)
 
-    def train(self, data: list[TrainingExample], epochs: int, batch_size: int = 16, measure: list[str] = None) \
+    def train(self, data: Sequence[TrainingExample], epochs: int, batch_size: int = 16, measure: list[str] = None) \
             -> list[dict[str]]:
         if not measure:
             measure = ["avg_loss"]
@@ -34,17 +36,22 @@ class NeuralNetworkController:
         measures_trackers = [create_tracker(m) for m in measure]
         measures_result = []
 
+        print(f"Started training {epochs} epochs. Batch size={batch_size}")
+
         for e in range(epochs):
+            print(f"Started {e} epoch")
             config = TrainingConfig(self.version, batch_size)
 
             mini_batch_examples: list[TrainingExample] = select_random(data, batch_size)
             inputs = np.stack([example.inputs for example in mini_batch_examples])
             labels = np.stack([example.label for example in mini_batch_examples])
 
+            print("Forward propagating inputs")
             outputs = self.main_layer.feed_forward(inputs)
             loss = self.loss_func.calc_loss(labels, outputs)
             loss_grad = self.loss_func.calc_loss_gradient(labels, outputs)
 
+            print("Back propagating gradients")
             self.main_layer.backpropagate_gradient(inputs, outputs, loss_grad, config)
 
             for b in range(batch_size):
@@ -56,19 +63,24 @@ class NeuralNetworkController:
                 t.record(batch_measures)
             measures_result.append(batch_measures)
 
+            print("Training")
             self.main_layer.train(config)
             self.version += 1
-            print(self.version, batch_measures)
+            print(f"Finished epoch {e} with {batch_measures}. Version={self.version}")
 
         return measures_result
 
-    def test(self, data: list[TrainingExample], measure: list[str] = None, batch_size: int = 16):
+    def test(self, data: Sequence[TrainingExample], measure: list[str] = None, batch_size: int = 16):
         if not measure:
             measure = ["avg_loss"]
 
         measures_trackers = [create_tracker(m) for m in measure]
+        split = split_array(data, batch_size)
+        print(f"Started testing. Data split in {len(split)} batches of 16")
 
-        for dataset in split_array(data, batch_size):
+        for index, dataset in enumerate(split):
+            print(f"Started test batch {index}")
+
             inputs = np.stack([example.inputs for example in dataset])
             labels = np.stack([example.label for example in dataset])
             outputs = self.main_layer.feed_forward(inputs)
@@ -77,8 +89,25 @@ class NeuralNetworkController:
             for b in range(len(dataset)):
                 for t in measures_trackers:
                     t.track(inputs[b], outputs[b], labels[b], loss[b])
+            print(f"Finished testing batch {index}")
 
         measures_result = dict()
         for t in measures_trackers:
             t.record(measures_result)
         return measures_result
+
+    def benchmark(self, inputs_shape: tuple[int, ...], batch: int = 16):
+        inputs = np.abs(np.random.rand(batch, *inputs_shape))
+        config = TrainingConfig(10, batch)
+        forward_times = []
+        backward_times = []
+        train_times = []
+
+        outputs = self.main_layer.benchmark_feed_forward(inputs, forward_times)
+        self.main_layer.benchmark_backprapagate(inputs, outputs, outputs / 2, config, backward_times)
+        self.main_layer.benchmark_train(config, train_times)
+        return {
+            "forward": forward_times,
+            "backward": backward_times,
+            "train": train_times
+        }

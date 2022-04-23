@@ -1,5 +1,5 @@
 import random
-from typing import TypeVar
+from typing import TypeVar, Sequence
 
 import numpy as np
 
@@ -16,11 +16,11 @@ def init_random(seed: int = 777):
     random.seed(seed)
 
 
-def choose_random(elements: list[T]) -> T:
+def choose_random(elements: Sequence[T]) -> T:
     return elements[random.randint(0, len(elements) - 1)]
 
 
-def select_random(elements: list, count: int):
+def select_random(elements: Sequence, count: int):
     result = list()
     for i in range(count):
         result.append(choose_random(elements))
@@ -35,7 +35,7 @@ def get_dims_after_filter(shape: tuple[int, ...], size: int, stride: int):
     )
 
 
-def split_array(array: list[T], max_size: int):
+def split_array(array: Sequence[T], max_size: int):
     sub_arrays = []
     parts = len(array) // max_size
 

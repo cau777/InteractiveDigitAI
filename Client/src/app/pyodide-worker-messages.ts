@@ -6,7 +6,7 @@ export interface IPyodideInitMessage {
 export interface IPyodideSelectMessage {
     action: "select";
     code: string;
-    data: any[];
+    data: Map<string, any>;
 }
 
 export interface IPyodideCloseMessage {

@@ -29,7 +29,7 @@ class MaxPoolLayer(NNLayer):
                                config: TrainingConfig):
         batch_size, channels, new_height, new_width = get_dims_after_filter(inputs.shape, self.size, self.stride)
 
-        result = inputs * 0
+        result = inputs * 0.0
         for b in range(batch_size):
             for c in range(channels):
                 for h in range(new_height):

@@ -3,6 +3,8 @@ import {AngularFireDatabase} from "@angular/fire/compat/database";
 import {map, firstValueFrom} from "rxjs";
 import {zip} from "./utils";
 
+export type AiName = "digit_recognition";
+
 @Injectable({
     providedIn: 'root'
 })
@@ -11,7 +13,7 @@ export class AiReposService {
     public constructor(private readonly db: AngularFireDatabase) {
     }
     
-    public readAi(name: string) {
+    public readAi(name: AiName) {
         const path = AiReposService.createModelPath(name);
         return firstValueFrom(this.db.object<IAiModel>(path)
             .snapshotChanges()
@@ -23,33 +25,45 @@ export class AiReposService {
         );
     }
     
-    public async createAi(name: string, model: IAiModel) {
+    public readAiJson(name: AiName) {
         const path = AiReposService.createModelPath(name);
-        await this.db.object<IAiModel>(path).query.ref
-            .transaction(o => {
-                return o ?? model;
-            });
+        return firstValueFrom(this.db.object<IAiModel>(path)
+            .snapshotChanges()
+            .pipe(map(o => {
+                    console.log(o.payload.exists())
+                    return o.payload.exists() ? o.payload.toJSON() : null
+                })
+            )
+        );
     }
     
-    public async saveAiChanges(name: string, prevParams: number[], newParams: number[]) {
+    public async saveAiChanges(name: AiName, prevParams: number[] | null, newParams: number[]) {
         const path = AiReposService.createModelPath(name);
-        const paramsDelta = zip(newParams, prevParams).map(o => o[0] - o[1]);
         
         await this.db.object<IAiModel>(path).query.ref
-            .transaction(o => {
-                if (o === null) return o;
-                
-                const model: IAiModel = o;
-                const newModel: IAiModel = {
-                    version: model.version + 1,
-                    params: zip(model.params, paramsDelta).map(o => o[0] + o[1])
+            .transaction(saveAiTransaction)
+        
+        function saveAiTransaction(model: IAiModel): IAiModel {
+            if (model === null) {
+                return {
+                    version: 1,
+                    params: newParams
                 };
-                console.log(JSON.stringify(newModel))
-                return newModel;
-            })
+            }
+            
+            if (prevParams === null) return model;
+            
+            const paramsDelta = zip(newParams, prevParams).map(o => o[0] - o[1]);
+            const newModel: IAiModel = {
+                version: model.version + 1,
+                params: zip(model.params, paramsDelta).map(o => o[0] + o[1])
+            };
+            console.log(JSON.stringify(newModel))
+            return newModel;
+        }
     }
     
-    private static createModelPath(name: string) {
+    private static createModelPath(name: AiName) {
         return "/models/" + name;
     };
 }

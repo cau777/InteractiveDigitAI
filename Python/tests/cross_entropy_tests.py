@@ -19,6 +19,23 @@ class MyTestCase(unittest.TestCase):
         soft = softmax(arr)
         self.assertGreater(0.0001, abs(1 - np.sum(soft)))
 
+    def test_softmax_batch(self):
+        arr = np.random.rand(16, 10)
+        soft = softmax(arr)
+        self.assertGreater(0.0001, abs(16 - np.sum(soft)))
+
+    def test_error_batch(self):
+        arr = np.abs(np.random.rand(16, 10))
+        layer = CrossEntropyLossFunction()
+        loss = layer.calc_loss(arr, arr * 0.5)
+        self.assertEqual((16,), loss.shape)
+
+    def test_error_small_batch(self):
+        arr = np.abs(np.random.rand(8, 10))
+        layer = CrossEntropyLossFunction()
+        loss = layer.calc_loss(arr, arr * 0.5)
+        self.assertEqual((8,), loss.shape)
+
     def test_training(self):
         inputs = np.random.rand(1, 100)
         expected = np.zeros((1, 10))

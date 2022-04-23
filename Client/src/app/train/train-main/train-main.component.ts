@@ -15,29 +15,32 @@ export class TrainMainComponent {
                        private aiRepos: AiReposService) {
     }
     
-    public async test() {
+    public async run() {
+        console.log("run")
         console.log("Result 1+1: " + await this.pythonRunner.run("1+1"));
         await this.pythonRunner.run("a = 1+1");
         console.log("Result 1+1: " + await this.pythonRunner.run("a"));
-        console.log("Result nn: " + JSON.stringify(await this.pythonRunner.run("n.evaluate_single(np.array([1, 2]))")));
+    
+        console.log("a")
+        
+        // console.log("Result nn: " + JSON.stringify(await this.pythonRunner.run("instance.test()")));
+        console.log("Result nn: " + JSON.stringify(await this.pythonRunner.run("instance.train(1)")));
+        // console.log("Result nn: " + JSON.stringify(await this.pythonRunner.run("instance.test()")));
+        // console.log("Result nn: " + JSON.stringify(await this.pythonRunner.run("instance.save()")));
     }
     
     public async getClick() {
-        let result = await this.aiRepos.readAi("test");
+        let result = await this.aiRepos.readAi("digit_recognition");
         this.current = result;
     }
     
     public async addOne() {
         if (this.current === null) return;
-        await this.aiRepos.saveAiChanges("test", this.current.params, this.current.params.map(o => o + 1));
-    }
-    
-    public async create() {
-        await this.aiRepos.createAi("test", {version: 0, params: Array.from(new Array(10).keys())});
+        await this.aiRepos.saveAiChanges("digit_recognition", this.current.params, this.current.params.map(o => o + 1));
     }
     
     public async load() {
-        await this.pythonRunner.loadScript("test");
+        await this.pythonRunner.loadScript("digit_recognition");
         console.log("loaded")
     }
 }

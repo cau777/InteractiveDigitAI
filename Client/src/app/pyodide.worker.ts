@@ -30,12 +30,12 @@ function selectAction(data: PyodideWorkerMessage): Promise<unknown | undefined> 
 }
 
 function postResult(r: IPyodideResultMessage) {
+    console.log("Worker posted result " + JSON.stringify(r));
     postMessage(r);
 }
 
-addEventListener("close", _ => console.log("closing"));
-
 addEventListener("message", ({data}: { data: PyodideWorkerMessage }) => {
+    console.log("Worker received message " + JSON.stringify(data));
     if (working) throw new Error("Worker is already busy");
     
     try {

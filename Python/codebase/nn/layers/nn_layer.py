@@ -1,9 +1,9 @@
+from abc import abstractmethod, ABC
 from typing import Iterator
+from codebase.nn import TrainingConfig
 
 import numpy as np
-from abc import abstractmethod, ABC
-
-from codebase.nn import TrainingConfig
+import timeit
 
 
 class NNLayer(ABC):
@@ -23,9 +23,26 @@ class NNLayer(ABC):
     def trainable_params_count(self) -> int:
         return 0
 
-    @property
-    def trainable_params(self) -> list[float]:
+    def get_trainable_params(self) -> list[float]:
         return []
 
     def set_trainable_params(self, params_iterator: Iterator[float]) -> None:
         pass
+
+    def benchmark_feed_forward(self, inputs: np.ndarray, results: list[tuple[str, float]]) -> np.ndarray:
+        name = self.__class__.__name__
+        time = timeit.timeit(lambda: self.feed_forward(inputs), number=10)
+        results.append((name, time))
+        return self.feed_forward(inputs)
+
+    def benchmark_backprapagate(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
+                                config: TrainingConfig, results: list[tuple[str, float]]) -> np.ndarray:
+        name = self.__class__.__name__
+        time = timeit.timeit(lambda: self.backpropagate_gradient(inputs, outputs, current_gradient, config), number=10)
+        results.append((name, time))
+        return self.backpropagate_gradient(inputs, outputs, current_gradient, config)
+
+    def benchmark_train(self, config: TrainingConfig, results: list[tuple[str, float]]):
+        name = self.__class__.__name__
+        time = timeit.timeit(lambda: self.train(config), number=10)
+        results.append((name, time))

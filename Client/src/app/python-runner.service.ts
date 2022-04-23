@@ -1,14 +1,17 @@
 import {Inject, Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
-import {firstValueFrom} from "rxjs";
+import {firstValueFrom, zip} from "rxjs";
 import {DOCUMENT} from "@angular/common";
 import {
     IPyodideInitMessage,
     IPyodideRunExpressionMessage,
-    IPyodideSelectMessage, PyodideWorkerMessage
+    IPyodideSelectMessage,
+    PyodideWorkerMessage
 } from "./pyodide-worker-messages";
+import {AiName, AiReposService} from "./ai-repos.service";
+import {arrayBufferToString} from "./utils";
 
-type ScriptName = "test";
+type ScriptName = "test" | AiName;
 
 @Injectable({
     providedIn: 'root'
@@ -17,6 +20,7 @@ export class PythonRunnerService {
     private worker?: Worker;
     
     public constructor(private httpClient: HttpClient,
+                       private aiRepos: AiReposService,
                        @Inject(DOCUMENT) private document: Document) {
     }
     
@@ -27,6 +31,8 @@ export class PythonRunnerService {
         let dependencies = await this.getDependencies(name);
         let message: IPyodideSelectMessage = {action: "select", code: code, data: dependencies};
         await this.waitWorker(message);
+    
+        console.log(name + " loaded")
     }
     
     public async run(code: string) {
@@ -34,7 +40,9 @@ export class PythonRunnerService {
         
         return await new Promise<any>((resolve, reject) => {
             this.worker!.postMessage(message);
+            
             this.worker!.addEventListener("error", e => {
+                console.log(e)
                 // TODO: redirect
                 reject(e.error);
             });
@@ -73,6 +81,30 @@ export class PythonRunnerService {
     }
     
     private async getDependencies(name: ScriptName) {
-        return [];
+        let result = new Map<string, any>();
+        
+        switch (name) {
+            case "test":
+                break;
+            case "digit_recognition":
+                let aiJson = await this.aiRepos.readAiJson("digit_recognition");
+                result.set("model_data", aiJson);
+                
+                let [train, test] = await firstValueFrom(zip<readonly ArrayBuffer[]>([
+                        this.httpClient.get("assets/mnist_test.dat", { // TODO: switch to train set
+                            responseType: "arraybuffer"
+                        }),
+                        this.httpClient.get("assets/mnist_test.dat", {
+                            responseType: "arraybuffer"
+                        })
+                    ])
+                );
+                result.set("train_data", arrayBufferToString(train));
+                result.set("test_data", arrayBufferToString(test));
+                
+                break;
+        }
+        
+        return result;
     }
 }

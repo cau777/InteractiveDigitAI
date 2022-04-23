@@ -1,11 +1,11 @@
 import {IPyodide} from "./ipyodide";
-import {IPyConsole} from "./ipy-console";
-import {IPyProxy} from "./ipyproxy";
+import {PyConsole} from "./py-console";
+import {PyProxy} from "./pyproxy";
 import {IPyodideOutputMessage} from "../pyodide-worker-messages";
 
 export class PyodideWorkerLogic {
     private readonly pyodidePromise: Promise<IPyodide>;
-    private pyconsole?: IPyConsole;
+    private pyconsole?: PyConsole;
     
     public constructor(private baseUrl: string) {
         this.pyodidePromise = this.prepareEnv();
@@ -24,30 +24,36 @@ export class PyodideWorkerLogic {
         return pyodide;
     }
     
-    public async select(code: string, data: any[]) {
-        let namespace: IPyProxy | undefined = undefined;
+    public async select(code: string, data: Map<string, any>) {
+        console.log(data.keys());
+        
+        let namespace: PyProxy | undefined = undefined;
+        let instance: PyProxy | undefined = undefined;
         try {
             let pyodide = await this.pyodidePromise;
             
             if (this.pyconsole !== undefined) await this.close();
             
             namespace = pyodide.globals.get("dict")();
+            namespace!.update(pyodide.toPy(data));
             
             await pyodide.loadPackagesFromImports(code);
             pyodide.runPython(code, {
                 globals: namespace
             });
             
-            let pyconsole: IPyConsole = namespace!.get("console");
-            pyconsole.globals.update(namespace); // TODO: add 'data' to global namespace
-            console.log(pyconsole.globals.toJs());
+            instance = namespace!.get("instance");
+            let pyconsole: PyConsole = instance.console.copy();
+            pyconsole.globals.set("instance", instance);
+            console.log(pyconsole.globals.__str__());
             
-            pyconsole.stdout_callback = (o: string) => PyodideWorkerLogic.stdCallback(o, false);
-            pyconsole.stderr_callback = (o: string) => PyodideWorkerLogic.stdCallback(o, true);
+            pyconsole.stdout_callback = (o: string) => PyodideWorkerLogic.stdCallback(o.trim(), false);
+            pyconsole.stderr_callback = (o: string) => PyodideWorkerLogic.stdCallback(o.trim(), true);
             
             this.pyconsole = pyconsole;
         } finally {
             namespace?.destroy();
+            instance?.destroy();
         }
     }
     
@@ -58,9 +64,9 @@ export class PyodideWorkerLogic {
         const result = await this.pyconsole.push(expression);
         
         if ((await this.pyodidePromise).isPyProxy(result)) {
-            let str = result.__str__();
+            let js = result.toJs({create_pyproxies: false, dict_converter: Object.fromEntries});
             result.destroy();
-            return str;
+            return js;
         }
         return result;
     }
@@ -73,6 +79,7 @@ export class PyodideWorkerLogic {
     }
     
     private static stdCallback(content: string, isError: boolean) {
+        if (!content) return;
         let message: IPyodideOutputMessage = {
             action: "output",
             content: content,

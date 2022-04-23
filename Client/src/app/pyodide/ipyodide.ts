@@ -1,5 +1,8 @@
-import {IPyProxy} from "./ipyproxy";
+import {PyProxy} from "./pyproxy";
 
+/**
+ * @link https://pyodide.org/en/stable/usage/api/js-api.html
+ */
 export interface IPyodide {
     /**
      * Runs a string of Python code from JavaScript, using pyodide.eval_code to evaluate the code. If the last statement
@@ -56,6 +59,8 @@ export interface IPyodide {
     
     isPyProxy(obj: any): boolean;
     
+    toPy(obj: any, options?: {depth: number, defaultConverter: (value: any, converter: any, cacheConversion: any) => any}): any;
+    
     /**
      * The list of packages that Pyodide has loaded
      */
@@ -64,5 +69,5 @@ export interface IPyodide {
     /**
      * An alias to the global Python namespace.
      */
-    globals: IPyProxy;
+    globals: PyProxy;
 }
