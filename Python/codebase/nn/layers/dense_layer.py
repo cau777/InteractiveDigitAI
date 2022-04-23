@@ -63,7 +63,7 @@ class DenseLayer(NNLayer):
     def trainable_params_count(self) -> int:
         return self.weights.size + self.biases.size
 
-    def trainable_params(self) -> list[float]:
+    def get_trainable_params(self) -> list[float]:
         return list(self.weights.flat) + list(self.biases.flat)
 
     def set_trainable_params(self, params_iterator: Iterator[float]) -> None:

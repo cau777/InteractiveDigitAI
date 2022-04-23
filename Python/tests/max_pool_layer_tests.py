@@ -26,6 +26,31 @@ def manual_pooling(array: np.ndarray, size: int, stride: int):
     return result
 
 
+def manual_backprop(array: np.ndarray, grad: np.ndarray, size: int, stride: int):
+    batch_size, channels, new_height, new_width = get_dims_after_filter(array.shape, size, stride)
+    result = array * 0.0
+
+    for b in range(batch_size):
+        for c in range(channels):
+            for h in range(new_height):
+                for w in range(new_width):
+                    m = -10000
+                    h_offset = h * stride
+                    w_offset = w * stride
+                    best_h = 0
+                    best_w = 0
+
+                    for i in range(size):
+                        for j in range(size):
+                            val = array[b, c, h_offset + i, w_offset + j]
+                            if val > m:
+                                m = val
+                                best_h = h_offset + i
+                                best_w = w_offset + j
+                    result[b, c, best_h, best_w] += grad[b, c, h, w]
+    return result
+
+
 class MyTestCase(unittest.TestCase):
     def setUp(self) -> None:
         init_random()
@@ -47,6 +72,18 @@ class MyTestCase(unittest.TestCase):
                     output = layer.feed_forward(array)
                     self.assertEqual(expected.shape, output.shape)
                     self.assertTrue(np.array_equal(expected, output))
+
+    def test_1(self):
+        batch, channels, height, width = 2, 3, 4, 6
+        arr: np.ndarray = np.arange(batch * channels * height * width).reshape((batch, channels, height, width))
+        for size in range(2, 4):
+            for stride in range(2, 4):
+                with self.subTest(size=size, stride=stride):
+                    layer = MaxPoolLayer(size, stride)
+                    grad = np.random.rand(*get_dims_after_filter(arr.shape, size, stride))
+                    result = layer.backpropagate_gradient(arr, None, grad, None)
+                    expected = manual_backprop(arr, grad, size, stride)
+                    self.assertGreater(0.01, np.sum(np.abs(result - expected)))
 
 
 if __name__ == '__main__':
