@@ -1,4 +1,8 @@
-<div>
-  <app-header></app-header>
-  <router-outlet></router-outlet>
+<div style="height: 100%">
+    <app-drawer>
+        <app-header></app-header>
+        <div class="px-5 py-3">
+            <router-outlet></router-outlet>
+        </div>
+    </app-drawer>
 </div>

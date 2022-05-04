@@ -2,6 +2,10 @@
 @use "./src/styles" as styles;
 
 header {
-  background-color: map.get(styles.$primary-theme, 500);
+  background-color: map.get(styles.$primary-theme, 600);
   color: map.get(styles.$primary-theme-contrast, 300);
+}
+
+.header-wrapper {
+    padding: 0 2rem 0 1rem;
 }

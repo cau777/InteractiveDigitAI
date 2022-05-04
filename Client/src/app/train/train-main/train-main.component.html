@@ -1,9 +1,10 @@
-<p>train-main works!</p>
-{{content}}
-
-<button (click)="getClick()">Get</button>
-{{current | json}}
-
-<button (click)="addOne()">Add 1</button>
-<button (click)="load()">Load</button>
-<button (click)="run()">Run</button>
+<div>
+    <h3>Train</h3>
+    <h5>Model</h5>
+    <mat-form-field appearance="fill">
+        <mat-label>Model</mat-label>
+        <mat-select>
+            <mat-option *ngFor="let val of trainOptions" [value]="val">{{val}}</mat-option>
+        </mat-select>
+    </mat-form-field>
+</div>

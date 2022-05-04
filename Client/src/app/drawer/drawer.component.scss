@@ -1,0 +1,21 @@
+@use 'sass:map';
+@use "./src/styles" as styles;
+
+mat-sidenav-container {
+    @extend .full;
+}
+
+mat-sidenav {
+    background-color: map.get(styles.$primary-theme, 500) !important;
+}
+
+:host {
+    @extend .full;
+    display: block;
+}
+
+
+.selected-background mat-list-item {
+    background-color: rgba(0, 0, 0, 10%);
+    transition: background-color ease-in-out 200ms;
+}

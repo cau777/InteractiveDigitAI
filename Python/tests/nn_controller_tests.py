@@ -58,10 +58,13 @@ class MyTestCase(unittest.TestCase):
         examples = [TrainingExample(np.random.rand(28, 28), np.zeros(10)) for _ in range(64)]
         for e in examples:
             e.label[random.randint(0, 9)] = 1.0
-        controller.train(examples, 20, measure=["accuracy"])
+        controller.train(examples, 50, measure=["accuracy"])
         results = controller.test(examples, measure=["accuracy"])
+
+        self.assertGreater(results["accuracy"], 0.8)
         # self.assertLess(0.5, results["accuracy"])
 
+    @unittest.skip
     def test_benchmark(self):
         controller = conv_controller()
         print(controller.benchmark((28, 28)))

@@ -15,12 +15,12 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-$theme: mat.define-light-theme(
+$theme: mat.define-dark-theme(
     (
       color:(
-        primary: mat.define-palette(mat.$deep-purple-palette),
-        accent: mat.define-palette(mat.$amber-palette),
-        warn: mat.define-palette(mat.$red-palette)
+        primary: mat.define-palette(mat.$purple-palette),
+        accent: mat.define-palette(mat.$green-palette),
+        warn: mat.define-palette(mat.$red-palette),
       ),
     )
 );
@@ -32,7 +32,7 @@ $accent-theme: map.get($colors-theme, accent);
 $warn-theme: map.get($colors-theme, warn);
 $background-theme: map.get($theme, background);
 
-//@include mat.all-component-themes($theme);
+@include mat.all-component-themes($theme);
 
 body {
   background-color: map.get($background-theme, background);
@@ -45,4 +45,19 @@ a {
 
 a:hover {
   color: inherit;
+}
+
+.flex-center {
+    display: flex;
+    align-items: center;
+}
+
+.full {
+    min-height: 100%;
+    height: 100%;
+}
+
+a.simple-link {
+    text-decoration: none;
+    color: inherit;
 }

@@ -1,11 +1,13 @@
+import math
 from typing import Sequence
 
 import numpy as np
 
+from codebase.general_utils import split_array
 from codebase.nn import TrainingConfig, TrainingExample
 from codebase.nn.layers import NNLayer
 from codebase.nn.loss_functions import LossFunction
-from codebase.nn.utils import select_random, split_array
+from codebase.nn.utils import select_random
 from codebase.nn.measure_trackers import create_tracker
 
 
@@ -25,7 +27,6 @@ class NeuralNetworkController:
         return self.classify_batch(np.stack([inputs]))[0]
 
     def classify_batch(self, inputs: np.ndarray):
-        print(self.main_layer.feed_forward(inputs).shape)
         return np.argmax(self.main_layer.feed_forward(inputs), -1)
 
     def train(self, data: Sequence[TrainingExample], epochs: int, batch_size: int = 16, measure: list[str] = None) \

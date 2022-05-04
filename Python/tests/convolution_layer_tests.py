@@ -1,13 +1,13 @@
 import unittest
-
 import numpy as np
 
+from codebase.nn import TrainingConfig
 from codebase.nn.layers import ConvolutionLayer
 from codebase.nn.layers import convolution_layer
 from codebase.nn.loss_functions import MseLossFunction
 from codebase.nn.lr_optimizers import AdamLrOptimizer
-from codebase.nn import TrainingConfig
 from codebase.nn.utils import init_random
+from tests.profiling_utils import profiler
 
 
 def get_image_example():
@@ -37,6 +37,10 @@ def get_image_example():
 class ConvolutionLayerTests(unittest.TestCase):
     def setUp(self) -> None:
         init_random()
+
+    @classmethod
+    def tearDownClass(cls):
+        profiler.print_stats()
 
     def test_padding0(self):
         array = np.random.rand(1, 1, 8, 8)
@@ -96,7 +100,7 @@ class ConvolutionLayerTests(unittest.TestCase):
         self.assertEqual(expected_output_shape, output.shape)
         self.assertEqual(expected_grad_shape, grad.shape)
 
-    def test_training(self):
+    def test_training_with_example(self):
         image, _, expected = get_image_example()
         image = image * 0.1
         expected = expected * 0.1
@@ -105,14 +109,35 @@ class ConvolutionLayerTests(unittest.TestCase):
         loss_func = MseLossFunction()
 
         for e in range(100):
-            output = layer.feed_forward(np.vstack([image, image]))
+            inputs = np.vstack([image, image])
+            output = layer.feed_forward(inputs)
+            config = TrainingConfig(e + 1, 2)
+            loss_grad = loss_func.calc_loss_gradient(expected, output)
+            layer.backpropagate_gradient(inputs, output, loss_grad, config)
+            layer.train(config)
+
+        final_loss = loss_func.calc_loss(expected, layer.feed_forward(image))
+        self.assertLess(final_loss.mean(), 0.0001)
+
+    def test_training(self):
+        image = np.abs(np.random.rand(10, 7, 5, 5))
+        expected = np.random.rand(10, 4, 3, 3)
+
+        layer = ConvolutionLayer.create_random(7, 4, 3, AdamLrOptimizer(0.05))
+        loss_func = MseLossFunction()
+
+        for e in range(100):
+            output = layer.feed_forward(image)
             config = TrainingConfig(e + 1, 2)
             loss_grad = loss_func.calc_loss_gradient(expected, output)
             layer.backpropagate_gradient(image, output, loss_grad, config)
             layer.train(config)
 
+            # final_loss = loss_func.calc_loss(expected, layer.feed_forward(image))
+            # print(final_loss.mean())
+
         final_loss = loss_func.calc_loss(expected, layer.feed_forward(image))
-        self.assertLess(final_loss.mean(), 0.0001)
+        self.assertLess(final_loss.mean(), 0.2)
 
 
 if __name__ == '__main__':

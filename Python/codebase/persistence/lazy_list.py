@@ -39,7 +39,8 @@ class LazyList(Sequence[T]):
             self.cached[i] = value
             return value
         elif isinstance(i, slice):
-            return [self[index] for index in range(*i.indices(len(self)))]
+            return LazyList(self.values[i], self.converter)
+            # return [self[index] for index in range(*i.indices(len(self)))]
 
     def __eq__(self, other):
         return all(map(lambda x, y: x == y, self, other))

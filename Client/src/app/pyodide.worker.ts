@@ -2,10 +2,9 @@
 /// <reference lib="webworker" />
 
 import {IPyodideInitMessage, IPyodideResultMessage, PyodideWorkerMessage} from "./pyodide-worker-messages";
-
 import {PyodideWorkerLogic} from "./pyodide/pyodide-worker-logic";
 
-importScripts("https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js")
+importScripts("https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js");
 
 let worker: PyodideWorkerLogic | undefined = undefined;
 let working: boolean = false;

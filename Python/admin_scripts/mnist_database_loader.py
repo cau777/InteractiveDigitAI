@@ -1,8 +1,9 @@
 import argparse
 import os
+import numpy as np
 from typing import BinaryIO
-from codebase.persistence.training_data_pb2 import ClassificationDataSet
-from codebase.persistence import save_compressed
+from codebase.nn.training_example import ClassificationExample
+from codebase.persistence import save_compressed_classification
 
 
 def read_int(stream: BinaryIO):
@@ -50,7 +51,7 @@ def load_labels(path: str):
 
 def save(name: str, out_path: str, data):
     with open(os.path.join(out_path, f"{name}.dat"), "wb") as f:
-        compressed = save_compressed(data)
+        compressed = save_compressed_classification("mnist", data)
         f.write(compressed)
 
 
@@ -64,18 +65,13 @@ def main():
     (rows, cols, images_data) = load_images(args.images)
     labels_data = load_labels(args.labels)
 
-    train_data = ClassificationDataSet()
-    train_data.classes = 10
-
-    test_data = ClassificationDataSet()
-    test_data.classes = 10
+    train_data = []
+    test_data = []
 
     for index, (image, label) in enumerate(zip(images_data, labels_data)):
+        example = ClassificationExample(np.array(image), label, 10)
         data = test_data if index < 1_000 else train_data
-        example = data.values.add()
-        example.inputs.values.extend(image)
-        example.inputs.shape.extend((rows, cols))
-        example.cls = label
+        data.append(example)
 
     save("mnist_train", args.out, train_data)
     save("mnist_test", args.out, test_data)

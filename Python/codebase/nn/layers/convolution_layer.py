@@ -1,12 +1,11 @@
+import numpy as np
 from math import sqrt
 from typing import Iterator
-
-import numpy as np
-
 from codebase.nn import TrainingConfig
 from codebase.nn.layers import NNLayer
 from codebase.nn.lr_optimizers import LrOptimizer
 from codebase.nn.utils import get_dims_after_filter
+
 
 def pad4d(array: np.ndarray, padding: int):
     shape = array.shape
@@ -84,43 +83,56 @@ class ConvolutionLayer(NNLayer):
         result = np.moveaxis(summed, 3, 1)
         return result
 
+    # @profiler
     def backpropagate_gradient(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
                                config: TrainingConfig):
         padded = pad4d(inputs, self.padding)
-        self.apply_gradient(padded, current_gradient, config)
+        self.apply_gradient(padded, current_gradient)
+
+        # r_current_gradient = np.transpose(current_gradient, [0, 2, 3, 1])
+        # r_kernels = np.moveaxis(self.kernels, 0, 3)
+
+        u_current_gradient = np.transpose(current_gradient, [2, 3, 0, 1])
+        u_kernels = np.expand_dims(np.moveaxis(self.kernels, 0, 3), -2)
 
         batch, channels, new_height, new_width = get_dims_after_filter(padded.shape, self.kernel_size, self.stride)
         padded_input_grad = np.zeros(padded.shape)
-
         for h in range(new_height):
             for w in range(new_width):
                 h_offset = h * self.stride
                 w_offset = w * self.stride
 
-                for b in range(batch):
-                    grad = np.zeros((*self.kernels.shape[-3:],))
-                    for c in range(channels):
-                        grad += self.kernels[c] * current_gradient[b, c, h, w]
-                    padded_input_grad[b, :, h_offset:h_offset + self.kernel_size, w_offset:w_offset + self.kernel_size] = grad
+                batch_mul = u_kernels * u_current_gradient[h, w]
+                batch_sum = np.sum(batch_mul, -1)
+                batch_t = np.moveaxis(batch_sum, 3, 0)
+                padded_input_grad[:, :, h_offset:h_offset + self.kernel_size, w_offset:w_offset + self.kernel_size] += batch_t
+                # for b in range(batch):
+                #     padded_input_grad[b, :, h_offset:h_offset + self.kernel_size, w_offset:w_offset + self.kernel_size]  += batch_t[b]
 
-        return remove_padding4d(padded_input_grad, self.padding)
+                # for b in range(batch):
+                #     mul = r_kernels * r_current_gradient[b, h, w]
+                #     s = np.sum(mul, -1)
+                #     assert np.array_equal(s, batch_t[b])
+                #     padded_input_grad[b, :, h_offset:h_offset + self.kernel_size, w_offset:w_offset + self.kernel_size] += batch_t[b]
 
-    def apply_gradient(self, inputs: np.ndarray, gradient: np.ndarray, config: TrainingConfig):
+        result = remove_padding4d(padded_input_grad, self.padding)
+        return result
+
+    def apply_gradient(self, inputs: np.ndarray, gradient: np.ndarray):
         factor = 1
         kernels_grad = np.zeros(self.kernels.shape)
         shape = inputs.shape
-        batch_size = shape[0]
+        mean_inputs: np.ndarray = inputs.mean(0)
+        mean_gradient: np.ndarray = gradient.mean(0)
 
-        for ic in range(self.in_channels):
-            for h in range(self.kernel_size):
-                for w in range(self.kernel_size):
-                    affected: np.ndarray = inputs[:, ic,
-                                           h:shape[-2] - (self.kernel_size - h - 1): self.stride,
-                                           w:shape[-1] - (self.kernel_size - w - 1): self.stride]
-
-                    for b in range(batch_size):
-                        mean = (gradient[b] * affected[b]).mean()
-                        kernels_grad[b, ic, h, w] += mean
+        # for ic in range(self.in_channels):
+        for h in range(self.kernel_size):
+            for w in range(self.kernel_size):
+                affected: np.ndarray = mean_inputs[:,
+                                       h:shape[-2] - (self.kernel_size - h - 1): self.stride,
+                                       w:shape[-1] - (self.kernel_size - w - 1): self.stride]
+                mean = (np.expand_dims(mean_gradient, 1) * affected).mean((2, 3))
+                kernels_grad[:, :, h, w] += mean
 
         self.kernels_grad += factor * kernels_grad
 
