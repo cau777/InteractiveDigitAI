@@ -1,0 +1,5 @@
+<mat-accordion>
+    <ng-container *ngFor="let log of entries; let i = index">
+        <app-log-details [name]="log[0]" [log]="log[1]" [expanded]="i === 0"></app-log-details>
+    </ng-container>
+</mat-accordion>

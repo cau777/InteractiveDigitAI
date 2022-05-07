@@ -61,3 +61,7 @@ a.simple-link {
     text-decoration: none;
     color: inherit;
 }
+
+.primary-border-1 {
+    border: solid map.get($primary-theme, 500) 1px;
+}

@@ -1,0 +1,32 @@
+@use 'sass:map';
+@use "./src/styles" as styles;
+
+table {
+    font-family: monospace;
+    font-size: 12px;
+    width: 100%;
+    display: block;
+}
+
+tbody {
+    width: 100%;
+    max-height: 60vh;
+    overflow: auto;
+    display: block;
+    border: solid black 1px;
+    border-radius: 0.5rem;
+    background-color: rgba(255, 255, 255, 0.08);
+    padding: 0 0.1rem;
+}
+
+mat-expansion-panel {
+    min-width: 20rem;
+}
+
+td {
+    padding: 0.1rem 0.2rem;
+}
+
+td.error {
+    color: map.get(styles.$warn-theme, 300);
+}

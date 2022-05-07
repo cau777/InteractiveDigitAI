@@ -55,7 +55,7 @@ class ClientInterface(ClientInterfaceBase):
     def eval(self, inputs: np.ndarray):
         result = self.network.classify_single(inputs)
         print(result)
-        return result
+        return int(result)
 
     def benchmark(self):
         return self.network.benchmark((28, 28))

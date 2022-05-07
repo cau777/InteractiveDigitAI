@@ -1,0 +1,15 @@
+<mat-expansion-panel [(expanded)]="expanded">
+    <mat-expansion-panel-header>
+        <mat-panel-title>{{name}}</mat-panel-title>
+    </mat-expansion-panel-header>
+
+    <ng-template matExpansionPanelContent>
+        <table>
+            <tbody #tbody>
+            <tr *appLogLines="log.lines; let l = line">
+                <td [class]="{'error': l.isError}">{{l.content}}</td>
+            </tr>
+            </tbody>
+        </table>
+    </ng-template>
+</mat-expansion-panel>

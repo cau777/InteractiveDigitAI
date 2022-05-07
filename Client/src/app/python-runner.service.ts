@@ -11,7 +11,8 @@ import {
 import {AiName, AiReposService} from "./ai-repos.service";
 import {arrayBufferToString} from "./utils";
 
-type ScriptName = "test" | AiName;
+export type ScriptName = "test" | AiName;
+export type PythonRunCallback = (content: string, isError: boolean) => void;
 
 @Injectable({
     providedIn: 'root'
@@ -38,26 +39,31 @@ export class PythonRunnerService {
         this.loaded = name;
     }
     
-    public async run(code: string) {
+    public async run(code: string, output?: PythonRunCallback) {
         let message: IPyodideRunExpressionMessage = {action: "run", expression: code};
+        let worker = this.worker!;
         
         return await new Promise<any>((resolve, reject) => {
-            this.worker!.postMessage(message);
+            worker.postMessage(message);
             
-            this.worker!.addEventListener("error", e => {
-                console.log(e)
-                // TODO: redirect
+            worker.addEventListener("error", e => {
+                console.log(e);
+                output?.(e.message, true);
                 reject(e.error);
             });
-            this.worker!.addEventListener("message", e => {
+            
+            worker.addEventListener("message", e => {
                 let data: PyodideWorkerMessage = e.data;
                 
                 if (data.action === "output") {
-                    console.log(data.content); // TODO: redirect
+                    console.log(data.content); // TODO: remove
+                    output?.(data.content, data.isError);
                 } else if (data.action === "result") {
                     resolve(data.content);
+                    worker.removeAllListeners?.();
                 }
             });
+            
         });
     }
     
