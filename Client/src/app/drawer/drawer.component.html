@@ -1,12 +1,12 @@
 <mat-sidenav-container>
     <!--    TODO: improve resizing-->
     <mat-sidenav mode="side" [opened]="true" class="mat-elevation-z3" appDrawerAutosize>
-        <mat-nav-list [@sidenavAnimationIsExpanded]="toggled" (@sidenavAnimationIsExpanded.start)="start()"
+        <mat-nav-list
+            [@sidenavAnimationIsExpanded]="toggled" (@sidenavAnimationIsExpanded.start)="start()"
                       (@sidenavAnimationIsExpanded.done)="done()">
-            <mat-list-item (click)="toggled = !toggled">
+            <mat-list-item (click)="toggle()">
                 <mat-icon size="32px">menu</mat-icon>
             </mat-list-item>
-
 
             <a class="simple-link" routerLink="/" routerLinkActive="selected-background" [routerLinkActiveOptions]="{exact: true}">
             <mat-list-item>
@@ -19,6 +19,13 @@
                 <mat-list-item>
                     <mat-icon>import_export</mat-icon>
                     <p matLine *ngIf="toggled">Train</p>
+                </mat-list-item>
+            </a>
+
+            <a class="simple-link" routerLink="/digit_recognition" routerLinkActive="selected-background">
+                <mat-list-item>
+                    <mat-icon>filter_9</mat-icon>
+                    <p matLine *ngIf="toggled">Digit Recognition</p>
                 </mat-list-item>
             </a>
         </mat-nav-list>

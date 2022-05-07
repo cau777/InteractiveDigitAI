@@ -18,6 +18,7 @@ type ScriptName = "test" | AiName;
 })
 export class PythonRunnerService {
     private worker?: Worker;
+    private loaded?: ScriptName;
     
     public constructor(private httpClient: HttpClient,
                        private aiRepos: AiReposService,
@@ -25,14 +26,16 @@ export class PythonRunnerService {
     }
     
     public async loadScript(name: ScriptName) {
+        if (name === this.loaded) return;
         await this.initWorker();
         
         let code = await this.getCode(name);
         let dependencies = await this.getDependencies(name);
         let message: IPyodideSelectMessage = {action: "select", code: code, data: dependencies};
         await this.waitWorker(message);
-    
-        console.log(name + " loaded")
+        
+        console.log(name + " loaded");
+        this.loaded = name;
     }
     
     public async run(code: string) {

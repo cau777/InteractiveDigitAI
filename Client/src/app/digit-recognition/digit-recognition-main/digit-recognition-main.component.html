@@ -1,0 +1,17 @@
+<h2>Handwritten Digit Recognition</h2>
+
+<div class="canvas-container">
+    <p>Draw a single digit below</p>
+    <div class="d-flex">
+        <canvas width="96" height="96" #canvasElement></canvas>
+        <button mat-icon-button (click)="clear()">
+            <mat-icon>delete_outline</mat-icon>
+        </button>
+    </div>
+</div>
+
+<button mat-raised-button color="primary" (click)="predict()" [disabled]="busy">
+    Predict
+</button>
+
+<canvas class="d-none" width="24" height="24" #resizeCanvasElement></canvas>

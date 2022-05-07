@@ -1,5 +1,6 @@
 import {Component} from '@angular/core';
 import {animate, state, style, transition, trigger} from "@angular/animations";
+import {DrawerService} from "../drawer.service";
 
 @Component({
     selector: 'app-drawer',
@@ -8,19 +9,28 @@ import {animate, state, style, transition, trigger} from "@angular/animations";
     animations: [
         trigger('sidenavAnimationIsExpanded', [
             state('true', style({
-                width: '200px'
+                width: DrawerService.MaxWidth + "px"
             })),
             state('false', style({
-                width: '64px'
+                width: DrawerService.MinWidth + "px"
             })),
             transition('false <=> true', animate('100ms ease'))
         ])
     ]
 })
 export class DrawerComponent {
-    public toggled = false;
-    
     public animating = false;
+    
+    public constructor(private drawerService: DrawerService) {
+    }
+    
+    public toggle() {
+        this.drawerService.expanded = !this.drawerService.expanded;
+    }
+    
+    public get toggled() {
+        return this.drawerService.expanded;
+    }
     
     public start() {
         this.animating = true;

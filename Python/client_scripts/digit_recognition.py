@@ -1,5 +1,7 @@
 import json
 
+import numpy as np
+
 from codebase.integration import ClientInterfaceBase
 from codebase.nn import NeuralNetworkController
 from codebase.nn.layers import SequentialLayer, DenseLayer, ReshapeLayer, ConvolutionLayer, FlattenLayer, MaxPoolLayer
@@ -48,7 +50,12 @@ class ClientInterface(ClientInterfaceBase):
         params: list[float] = self.network.main_layer.get_trainable_params()
         data = {"version": self.network.version,
                 "params": params}
-        return json.dumps(data)
+        return data
+
+    def eval(self, inputs: np.ndarray):
+        result = self.network.classify_single(inputs)
+        print(result)
+        return result
 
     def benchmark(self):
         return self.network.benchmark((28, 28))
