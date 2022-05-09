@@ -11,6 +11,11 @@ from codebase.nn.utils import select_random
 from codebase.nn.measure_trackers import create_tracker
 
 
+def find_best_batch_size():
+    return 64
+
+
+# TODO: find best batch size
 class NeuralNetworkController:
     def __init__(self, main_layer: NNLayer, loss_func: LossFunction, version: int = 1):
         self.main_layer = main_layer
@@ -29,8 +34,11 @@ class NeuralNetworkController:
     def classify_batch(self, inputs: np.ndarray):
         return np.argmax(self.main_layer.feed_forward(inputs), -1)
 
-    def train(self, data: Sequence[TrainingExample], epochs: int, batch_size: int = 16, measure: list[str] = None) \
+    def train(self, data: Sequence[TrainingExample], epochs: int, batch_size: int = -1, measure: list[str] = None) \
             -> list[dict[str]]:
+        if batch_size == -1:
+            batch_size = find_best_batch_size()
+
         if not measure:
             measure = ["avg_loss"]
 
@@ -47,12 +55,12 @@ class NeuralNetworkController:
             inputs = np.stack([example.inputs for example in mini_batch_examples])
             labels = np.stack([example.label for example in mini_batch_examples])
 
-            print("Forward propagating inputs")
+            # print("Forward propagating inputs")
             outputs = self.main_layer.feed_forward(inputs)
             loss = self.loss_func.calc_loss(labels, outputs)
             loss_grad = self.loss_func.calc_loss_gradient(labels, outputs)
 
-            print("Back propagating gradients")
+            # print("Back propagating gradients")
             self.main_layer.backpropagate_gradient(inputs, outputs, loss_grad, config)
 
             for b in range(batch_size):
@@ -64,14 +72,17 @@ class NeuralNetworkController:
                 t.record(batch_measures)
             measures_result.append(batch_measures)
 
-            print("Training")
+            # print("Training")
             self.main_layer.train(config)
             self.version += 1
             print(f"Finished epoch {e} with {batch_measures}. Version={self.version}")
 
         return measures_result
 
-    def test(self, data: Sequence[TrainingExample], measure: list[str] = None, batch_size: int = 16):
+    def test(self, data: Sequence[TrainingExample], measure: list[str] = None, batch_size: int = -1):
+        if batch_size == -1:
+            batch_size = find_best_batch_size()
+
         if not measure:
             measure = ["avg_loss"]
 

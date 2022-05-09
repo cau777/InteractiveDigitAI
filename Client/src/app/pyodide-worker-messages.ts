@@ -1,3 +1,5 @@
+import {ObjDict} from "./utils";
+
 export interface IPyodideInitMessage {
     action: "init";
     baseUrl: string;
@@ -6,7 +8,7 @@ export interface IPyodideInitMessage {
 export interface IPyodideSelectMessage {
     action: "select";
     code: string;
-    data: Map<string, any>;
+    data: ObjDict<any>;
 }
 
 export interface IPyodideCloseMessage {
@@ -16,6 +18,7 @@ export interface IPyodideCloseMessage {
 export interface IPyodideRunExpressionMessage {
     action: "run";
     expression: string;
+    params: ObjDict<any>;
 }
 
 export interface IPyodideOutputMessage {

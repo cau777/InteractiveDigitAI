@@ -23,18 +23,18 @@ function selectAction(data: PyodideWorkerMessage): Promise<unknown | undefined> 
         case "select":
             return worker.select(data.code, data.data);
         case "run":
-            return worker.run(data.expression);
+            return worker.run(data.expression, data.params);
     }
     throw new RangeError();
 }
 
 function postResult(r: IPyodideResultMessage) {
-    console.log("Worker posted result " + JSON.stringify(r));
+    // console.log("Worker posted result " + JSON.stringify(r));
     postMessage(r);
 }
 
 addEventListener("message", ({data}: { data: PyodideWorkerMessage }) => {
-    console.log("Worker received message " + JSON.stringify(data));
+    // console.log("Worker received message " + JSON.stringify(data));
     if (working) throw new Error("Worker is already busy");
     
     try {

@@ -2,6 +2,7 @@ import {IPyodide} from "./ipyodide";
 import {PyConsole} from "./py-console";
 import {PyProxy} from "./pyproxy";
 import {IPyodideOutputMessage} from "../pyodide-worker-messages";
+import {ObjDict} from "../utils";
 
 export class PyodideWorkerLogic {
     private readonly pyodidePromise: Promise<IPyodide>;
@@ -24,18 +25,18 @@ export class PyodideWorkerLogic {
         return pyodide;
     }
     
-    public async select(code: string, data: Map<string, any>) {
-        console.log(data.keys());
-        
+    public async select(code: string, params: ObjDict<any>) {
         let namespace: PyProxy | undefined = undefined;
         let instance: PyProxy | undefined = undefined;
+        
         try {
             let pyodide = await this.pyodidePromise;
-            
             if (this.pyconsole !== undefined) await this.close();
             
             namespace = pyodide.globals.get("dict")();
-            namespace!.update(pyodide.toPy(data));
+            let pyParams = pyodide.toPy(params);
+            namespace.update(pyParams);
+            pyParams.destroy();
             
             await pyodide.loadPackagesFromImports(code);
             pyodide.runPython(code, {
@@ -44,7 +45,6 @@ export class PyodideWorkerLogic {
             
             instance = namespace!.get("instance");
             let pyconsole: PyConsole = instance.console.copy();
-            // pyconsole.globals.set("instance", instance);
             pyconsole.globals.update(namespace);
             console.log(pyconsole.globals.__str__());
             
@@ -58,18 +58,44 @@ export class PyodideWorkerLogic {
         }
     }
     
-    public async run(expression: string) {
+    public async run(expression: string, params: ObjDict<any>) {
         if (this.pyconsole === undefined)
             throw new Error("No script selected");
         
+        await this.setParams(params);
         const result = await this.pyconsole.push(expression);
         
-        if ((await this.pyodidePromise).isPyProxy(result)) {
+        let pyodide = await this.pyodidePromise;
+        if (pyodide.isPyProxy(result)) {
             let js = result.toJs({create_pyproxies: false, dict_converter: Object.fromEntries});
             result.destroy();
             return js;
         }
+        
+        await this.clearParams(params);
         return result;
+    }
+    
+    private async setParams(params: ObjDict<any>) {
+        let pyodide = await this.pyodidePromise;
+        let pyParams = pyodide.toPy(params);
+        let instance = this.pyconsole.globals.get("instance").__dict__;
+        instance.update(pyParams);
+        pyParams.destroy();
+        
+        console.log(instance.keys().__str__());
+    }
+    
+    private async clearParams(params: ObjDict<any>) {
+        let pyodide = await this.pyodidePromise;
+        let instance = this.pyconsole.globals.get("instance").__dict__;
+        
+        for (let key of Object.keys(params)) {
+            let proxy = pyodide.toPy(key);
+            instance.pop(proxy);
+        }
+    
+        console.log(instance.keys().__str__());
     }
     
     public async close() {

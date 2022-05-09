@@ -6,7 +6,7 @@ from codebase.general_utils import split_array, get_size
 from codebase.nn.training_example import ClassificationExample
 from codebase.persistence import LazyList
 
-DEFAULT_COMPRESSION = 3
+DEFAULT_COMPRESSION = 6
 
 
 class ClassificationPattern:

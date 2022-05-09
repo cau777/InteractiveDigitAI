@@ -17,3 +17,5 @@ export function arrayBufferToString(buffer: ArrayBuffer) {
     }
     return result;
 }
+
+export type ObjDict<T> = {[key: string]: T};

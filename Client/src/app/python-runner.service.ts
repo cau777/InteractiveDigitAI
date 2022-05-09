@@ -9,7 +9,7 @@ import {
     PyodideWorkerMessage
 } from "./pyodide-worker-messages";
 import {AiName, AiReposService} from "./ai-repos.service";
-import {arrayBufferToString} from "./utils";
+import {arrayBufferToString, ObjDict} from "./utils";
 
 export type ScriptName = "test" | AiName;
 export type PythonRunCallback = (content: string, isError: boolean) => void;
@@ -39,15 +39,15 @@ export class PythonRunnerService {
         this.loaded = name;
     }
     
-    public async run(code: string, output?: PythonRunCallback) {
-        let message: IPyodideRunExpressionMessage = {action: "run", expression: code};
+    public async run(code: string, params: ObjDict<any> = {}, output?: PythonRunCallback) {
+        let message: IPyodideRunExpressionMessage = {action: "run", expression: code, params: params};
         let worker = this.worker!;
         
         return await new Promise<any>((resolve, reject) => {
             worker.postMessage(message);
             
             worker.addEventListener("error", e => {
-                console.log(e);
+                console.error(e);
                 output?.(e.message, true);
                 reject(e.error);
             });
@@ -96,11 +96,8 @@ export class PythonRunnerService {
             case "test":
                 break;
             case "digit_recognition":
-                let aiJson = await this.aiRepos.readAiJson("digit_recognition");
-                result.set("model_data", aiJson);
-                
                 let [train, test] = await firstValueFrom(zip<readonly ArrayBuffer[]>([
-                        this.httpClient.get("assets/mnist_test.dat", { // TODO: switch to train set
+                        this.httpClient.get("assets/mnist_train.dat", {
                             responseType: "arraybuffer"
                         }),
                         this.httpClient.get("assets/mnist_test.dat", {

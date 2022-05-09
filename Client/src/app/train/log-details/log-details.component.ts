@@ -17,9 +17,10 @@ export class LogDetailsComponent implements AfterViewInit {
     public expanded = false;
     
     @ViewChild("tbody")
-    private tbody!: ElementRef<HTMLElement>;
+    private tbody?: ElementRef<HTMLElement>;
     
     public ngAfterViewInit(): void {
+        if (this.tbody === undefined) return;
         this.tbody.nativeElement.scroll(0, this.tbody.nativeElement.scrollHeight);
     }
 }

@@ -49,32 +49,29 @@ def load_labels(path: str):
         return values
 
 
-def save(name: str, out_path: str, data):
-    with open(os.path.join(out_path, f"{name}.dat"), "wb") as f:
+def save(out_path: str, data):
+    with open(os.path.join(out_path), "wb") as f:
         compressed = save_compressed_classification("mnist", data)
         f.write(compressed)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("images", help="path to the images file downloaded from http://yann.lecun.com/exdb/mnist/")
-    parser.add_argument("labels", help="path to the labels file downloaded from http://yann.lecun.com/exdb/mnist/")
+    parser.add_argument("images", help="path to the test images file downloaded from http://yann.lecun.com/exdb/mnist/")
+    parser.add_argument("labels", help="path to the train labels file downloaded from http://yann.lecun.com/exdb/mnist/")
     parser.add_argument("out", help="path to the output directory")
 
     args = parser.parse_args()
     (rows, cols, images_data) = load_images(args.images)
     labels_data = load_labels(args.labels)
 
-    train_data = []
-    test_data = []
+    data = []
 
     for index, (image, label) in enumerate(zip(images_data, labels_data)):
         example = ClassificationExample(np.array(image), label, 10)
-        data = test_data if index < 1_000 else train_data
         data.append(example)
 
-    save("mnist_train", args.out, train_data)
-    save("mnist_test", args.out, test_data)
+    save(args.out, data)
 
 
 if __name__ == '__main__':
