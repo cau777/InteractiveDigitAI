@@ -57,7 +57,7 @@ export class TrainMainComponent {
             console.log(await this.pythonRunner.run("instance.train()",{epochs: this.model.epochs}, callback));
             await this.saveAi(name);
         } else if (this.model.action === "test") {
-            console.log(await this.pythonRunner.run("instance.test()", callback));
+            console.log(await this.pythonRunner.run("instance.test()", {}, callback));
         }
         
         clearInterval(interval);

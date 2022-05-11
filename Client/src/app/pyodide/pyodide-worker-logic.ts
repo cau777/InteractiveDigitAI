@@ -46,7 +46,7 @@ export class PyodideWorkerLogic {
             instance = namespace!.get("instance");
             let pyconsole: PyConsole = instance.console.copy();
             pyconsole.globals.update(namespace);
-            console.log(pyconsole.globals.__str__());
+            // console.log(pyconsole.globals.__str__());
             
             pyconsole.stdout_callback = (o: string) => PyodideWorkerLogic.stdCallback(o.trim(), false);
             pyconsole.stderr_callback = (o: string) => PyodideWorkerLogic.stdCallback(o.trim(), true);
