@@ -1,9 +1,9 @@
 @use 'sass:map';
-@use "./src/styles" as styles;
+@use '../themes' as themes;
 
 header {
-  background-color: map.get(styles.$primary-theme, 600);
-  color: map.get(styles.$primary-theme-contrast, 300);
+  background-color: map.get(themes.$primary-theme, 600);
+  color: map.get(themes.$primary-theme-contrast, 300);
 }
 
 .header-wrapper {

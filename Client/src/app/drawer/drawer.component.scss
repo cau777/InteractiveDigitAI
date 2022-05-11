@@ -1,19 +1,20 @@
 @use 'sass:map';
-@use "./src/styles" as styles;
+@use '../themes' as themes;
 
 mat-sidenav-container {
-    @extend .full;
+    min-height: 100%;
+    height: 100%;
 }
 
 mat-sidenav {
-    background-color: map.get(styles.$primary-theme, 500) !important;
+    background-color: map.get(themes.$primary-theme, 500) !important;
 }
 
 :host {
-    @extend .full;
+    min-height: 100%;
+    height: 100%;
     display: block;
 }
-
 
 .selected-background mat-list-item {
     background-color: rgba(0, 0, 0, 15%);

@@ -1,5 +1,5 @@
 @use 'sass:map';
-@use "./src/styles" as styles;
+@use '../../themes' as themes;
 
 table {
     font-family: monospace;
@@ -28,5 +28,5 @@ td {
 }
 
 td.error {
-    color: map.get(styles.$warn-theme, 300);
+    color: map.get(themes.$warn-theme, 300);
 }

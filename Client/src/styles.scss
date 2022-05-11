@@ -1,10 +1,9 @@
-
 @use 'sass:map';
 @use '@angular/material' as mat;
+@use './app/themes' as themes;
 
 /* Importing Bootstrap SCSS file. */
 @import '~bootstrap/scss/bootstrap';
-//@include mat.core();
 
 html, body {
   height: 100%;
@@ -15,27 +14,12 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
-$theme: mat.define-dark-theme(
-    (
-      color:(
-        primary: mat.define-palette(mat.$purple-palette),
-        accent: mat.define-palette(mat.$green-palette),
-        warn: mat.define-palette(mat.$red-palette),
-      ),
-    )
-);
 
-$colors-theme: map.get($theme, color);
-$primary-theme: map.get($colors-theme, primary);
-$primary-theme-contrast: map.get($primary-theme, contrast);
-$accent-theme: map.get($colors-theme, accent);
-$warn-theme: map.get($colors-theme, warn);
-$background-theme: map.get($theme, background);
 
-@include mat.all-component-themes($theme);
+@include mat.all-component-themes(themes.$theme);
 
 body {
-  background-color: map.get($background-theme, background);
+  background-color: map.get(themes.$background-theme, background);
   min-height: 100vh;
 }
 
@@ -63,5 +47,5 @@ a.simple-link {
 }
 
 .primary-border-1 {
-    border: solid map.get($primary-theme, 500) 1px;
+    border: solid map.get(themes.$primary-theme, 500) 1px;
 }
