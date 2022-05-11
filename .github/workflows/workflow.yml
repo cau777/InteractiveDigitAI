@@ -18,6 +18,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
+      - name: Cd to client directory
+        run: cd Client
+
       - name: Install and build
         run: npm install && npm run gh-build
 
