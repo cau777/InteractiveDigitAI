@@ -12,17 +12,26 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [14.17]
+        node-version: [ 14.17 ]
+        python-version: [ '3.x' ]
 
     steps:
       - name: Checkout
         uses: actions/checkout@v1
 
-      - name: Install and build
+      - name: Setup Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install and build python scripts
+        run: pip install build && python -m build ./Python && cp ./Python/dist/*.whl ./Client/src/assets/python && cp ./Python/client_scripts/*.py ./Client/src/assets/python
+
+      - name: Install and build client
         run: cd Client && npm install && npm run gh-build
 
       - name: Deploy
         uses: JamesIves/github-pages-deploy-action@4.1.1
         with:
           branch: gh-pages
-          folder: dist/aiplayground
+          folder: Client/dist/aiplayground
