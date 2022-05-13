@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1652295743785,
+  "timestamp": 1652485973338,
   "index": "/AIPlayground/index.html",
   "assetGroups": [
     {
@@ -12,16 +12,16 @@
       },
       "urls": [
         "/AIPlayground/191.764c32e139b0a5be.js",
+        "/AIPlayground/220.2dada0b47619a625.js",
         "/AIPlayground/312.c07c2665cbebcd0e.js",
-        "/AIPlayground/702.be3d577923564989.js",
-        "/AIPlayground/850.559aa46d2945e004.js",
-        "/AIPlayground/884.a381d6f67f35723a.js",
+        "/AIPlayground/850.159cae4dbd850d71.js",
+        "/AIPlayground/884.ffefc810dee30f3c.js",
         "/AIPlayground/favicon.ico",
         "/AIPlayground/index.html",
-        "/AIPlayground/main.9f211c66a4fd759f.js",
+        "/AIPlayground/main.470058a931dc39dc.js",
         "/AIPlayground/manifest.webmanifest",
         "/AIPlayground/polyfills.53d36fd2a305790d.js",
-        "/AIPlayground/runtime.9604d6e362af71f2.js",
+        "/AIPlayground/runtime.b3bb43d45339de19.js",
         "/AIPlayground/styles.896134155d4c4bef.css"
       ],
       "patterns": []
@@ -69,10 +69,10 @@
   ],
   "hashTable": {
     "/AIPlayground/191.764c32e139b0a5be.js": "9c1698b7657fcf393ab8e05d4007d19c88dd39d6",
+    "/AIPlayground/220.2dada0b47619a625.js": "cfdf67b90d8ba8de6601f0dbb8dd604752b99f92",
     "/AIPlayground/312.c07c2665cbebcd0e.js": "969ab098fa1bfcaa41f41b86f1a0eee8471c1ba3",
-    "/AIPlayground/702.be3d577923564989.js": "8ef9b38458121535db17128a38fb2310e7d21d8d",
-    "/AIPlayground/850.559aa46d2945e004.js": "fc7336b008e674e770c2695d8f8b2d43ca569a1a",
-    "/AIPlayground/884.a381d6f67f35723a.js": "eced6a5389364dcd6b9a5dfdc48c452e75241650",
+    "/AIPlayground/850.159cae4dbd850d71.js": "2836311ce9f90d7b277e9d02fdddbcb2f0ea2389",
+    "/AIPlayground/884.ffefc810dee30f3c.js": "5b854ca01826d3075e10c9142f1c9765a7c07540",
     "/AIPlayground/assets/icons/icon-128x128.png": "dae3b6ed49bdaf4327b92531d4b5b4a5d30c7532",
     "/AIPlayground/assets/icons/icon-144x144.png": "b0bd89982e08f9bd2b642928f5391915b74799a7",
     "/AIPlayground/assets/icons/icon-152x152.png": "7479a9477815dfd9668d60f8b3b2fba709b91310",
@@ -83,15 +83,15 @@
     "/AIPlayground/assets/icons/icon-96x96.png": "3914125a4b445bf111c5627875fc190f560daa41",
     "/AIPlayground/assets/mnist_test.dat": "46c621e129fd18d8edc234097873efe19a9ec6c5",
     "/AIPlayground/assets/mnist_train.dat": "77c0be0acf304806f9c06ed08573815bbdc4cd4c",
-    "/AIPlayground/assets/python/codebase-0.0.1-py3-none-any.whl": "ae01b351e1c39268d7172aee21c64cb3b74cbc8a",
+    "/AIPlayground/assets/python/codebase-0.0.1-py3-none-any.whl": "3040013b0bce31a87b3aa33b58913d160b1b7be3",
     "/AIPlayground/assets/python/digit_recognition.py": "1b05afffacd8938e431386b2091000d011529690",
     "/AIPlayground/assets/python/test.py": "7d0ff4195c8713056e157c66a6a2ae7b70dc4e01",
     "/AIPlayground/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/AIPlayground/index.html": "9680c3ed73926ebb83cf8b8c7e0a0d365b18c1a9",
-    "/AIPlayground/main.9f211c66a4fd759f.js": "d051e4f0a5a26a7fd26e3f18587a8e101faa15df",
+    "/AIPlayground/index.html": "61e94ff8ed847dfa4f4c800edb567429a26c292f",
+    "/AIPlayground/main.470058a931dc39dc.js": "d2269e78f6dfb6692c697270bb122ae8733432a1",
     "/AIPlayground/manifest.webmanifest": "f6085e1b2feb7d54251f1670e74611a16048e72b",
     "/AIPlayground/polyfills.53d36fd2a305790d.js": "a3c2da8d8e44ed8aa52f2aa8b839d67921068822",
-    "/AIPlayground/runtime.9604d6e362af71f2.js": "b0204362988a40c9ddd7dd8aca152e2232285a39",
+    "/AIPlayground/runtime.b3bb43d45339de19.js": "62bfb295d168dcc1836eeee1c97fda20b96dd412",
     "/AIPlayground/styles.896134155d4c4bef.css": "8113a9db45d8c440b97ece3b95beee6274eaebab"
   },
   "navigationUrls": [
