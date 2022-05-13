@@ -10,7 +10,7 @@ let worker: PyodideWorkerLogic | undefined = undefined;
 let working: boolean = false;
 
 async function initWorker(data: IPyodideInitMessage) {
-    worker = new PyodideWorkerLogic(data.baseUrl);
+    worker = new PyodideWorkerLogic(data.libs);
 }
 
 function selectAction(data: PyodideWorkerMessage): Promise<unknown | undefined> {

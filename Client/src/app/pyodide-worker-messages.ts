@@ -2,7 +2,7 @@ import {ObjDict} from "./utils";
 
 export interface IPyodideInitMessage {
     action: "init";
-    baseUrl: string;
+    libs: ArrayBuffer[];
 }
 
 export interface IPyodideSelectMessage {

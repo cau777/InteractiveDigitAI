@@ -3,18 +3,19 @@
     <mat-sidenav mode="side" [opened]="true" class="mat-elevation-z3" appDrawerAutosize>
         <mat-nav-list
             [@sidenavAnimationIsExpanded]="toggled" (@sidenavAnimationIsExpanded.start)="start()"
-                      (@sidenavAnimationIsExpanded.done)="done()">
+            (@sidenavAnimationIsExpanded.done)="done()">
             <mat-list-item (click)="toggle()">
                 <mat-icon size="32px">menu</mat-icon>
             </mat-list-item>
 
-            <a class="simple-link" routerLink="/" routerLinkActive="selected-background" [routerLinkActiveOptions]="{exact: true}">
-            <mat-list-item>
-                <mat-icon>home</mat-icon>
-                <p matLine *ngIf="toggled">Home</p>
-            </mat-list-item>
+            <a class="simple-link" routerLink="/" routerLinkActive="selected-background"
+               [routerLinkActiveOptions]="{exact: true}">
+                <mat-list-item>
+                    <mat-icon>home</mat-icon>
+                    <p matLine *ngIf="toggled">Home</p>
+                </mat-list-item>
             </a>
-            
+
             <a class="simple-link" routerLink="/train" routerLinkActive="selected-background">
                 <mat-list-item>
                     <mat-icon>import_export</mat-icon>
@@ -30,7 +31,9 @@
             </a>
         </mat-nav-list>
     </mat-sidenav>
-    <mat-sidenav-content>
-        <ng-content></ng-content>
+    <mat-sidenav-content #content>
+        <div>
+            <ng-content></ng-content>
+        </div>
     </mat-sidenav-content>
 </mat-sidenav-container>

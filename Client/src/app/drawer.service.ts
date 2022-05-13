@@ -9,6 +9,9 @@ export class DrawerService {
     
     public expanded = false;
     
+    public constructor() {
+    }
+    
     public get currentWidth() {
         return this.expanded ? DrawerService.MaxWidth : DrawerService.MinWidth;
     }

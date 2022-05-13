@@ -8,20 +8,16 @@ export class PyodideWorkerLogic {
     private readonly pyodidePromise: Promise<IPyodide>;
     private pyconsole?: PyConsole;
     
-    public constructor(private baseUrl: string) {
+    public constructor(private libs: ArrayBuffer[]) {
         this.pyodidePromise = this.prepareEnv();
     }
     
     private async prepareEnv(): Promise<IPyodide> {
         let pyodide = await loadPyodide();
         
-        await pyodide.loadPackage("micropip");
-        
-        const filename = "codebase-0.0.1-py3-none-any.whl";
-        const codebaseUrl = this.baseUrl + ("/assets/python/" + filename);
-        let list = await pyodide.runPythonAsync(`import micropip; await micropip.install('${codebaseUrl}'); str(micropip.list())`);
-        console.log(list);
-        
+        for (const lib of this.libs)
+            await pyodide.unpackArchive(lib, "wheel");
+    
         return pyodide;
     }
     
@@ -94,7 +90,7 @@ export class PyodideWorkerLogic {
             let proxy = pyodide.toPy(key);
             instance.pop(proxy);
         }
-    
+        
         console.log(instance.keys().__str__());
     }
     

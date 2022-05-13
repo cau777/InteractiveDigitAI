@@ -1,14 +1,13 @@
-import {Inject, Injectable} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from "@angular/common/http";
 import {firstValueFrom, zip} from "rxjs";
-import {DOCUMENT} from "@angular/common";
 import {
     IPyodideInitMessage,
     IPyodideRunExpressionMessage,
     IPyodideSelectMessage,
     PyodideWorkerMessage
 } from "./pyodide-worker-messages";
-import {AiName, AiReposService} from "./ai-repos.service";
+import {AiName} from "./ai-repos.service";
 import {arrayBufferToString, ObjDict} from "./utils";
 
 export type ScriptName = "test" | AiName;
@@ -21,9 +20,7 @@ export class PythonRunnerService {
     private worker?: Worker;
     private loaded?: ScriptName;
     
-    public constructor(private httpClient: HttpClient,
-                       private aiRepos: AiReposService,
-                       @Inject(DOCUMENT) private document: Document) {
+    public constructor(private httpClient: HttpClient) {
     }
     
     public async loadScript(name: ScriptName) {
@@ -71,9 +68,19 @@ export class PythonRunnerService {
         if (this.worker === undefined) {
             if (typeof Worker === "undefined") throw TypeError("Workers are not supported in your system") // TODO: add support without workers
             this.worker = new Worker(new URL("./pyodide.worker", import.meta.url));
-            let init: IPyodideInitMessage = {action: "init", baseUrl: this.document.location.origin}
+            
+            let libs = await this.loadLibs("python/codebase-0.0.1-py3-none-any");
+            let init: IPyodideInitMessage = {action: "init", libs: libs}
             return this.waitWorker(init);
         }
+    }
+    
+    private async loadLibs(...names: string[]) {
+        let libs = [];
+        for (let name of names) {
+            libs.push(await firstValueFrom(this.httpClient.get("/assets/" + name + ".whl", {responseType: "arraybuffer"})));
+        }
+        return libs;
     }
     
     private async waitWorker(message: any) {
