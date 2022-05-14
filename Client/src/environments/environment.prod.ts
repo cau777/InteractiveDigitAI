@@ -1,5 +1,6 @@
 export const environment = {
     production: true,
+    baseUrl: "/AIPlayground",
     firebase: {
         apiKey: "public",
         databaseURL: "https://aiplayground-708f1-default-rtdb.firebaseio.com/",

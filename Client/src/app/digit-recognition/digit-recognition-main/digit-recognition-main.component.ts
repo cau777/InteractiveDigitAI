@@ -66,6 +66,9 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
         canvas.addEventListener("touchstart", () => {
             this.touchStartedInCanvas = true;
         });
+        canvas.addEventListener("mousedown", ()=>{
+            this.touchStartedInCanvas = true;
+        });
         
         let ctx = canvas.getContext("2d")!;
         

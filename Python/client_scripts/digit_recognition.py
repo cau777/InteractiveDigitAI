@@ -32,9 +32,12 @@ class ClientInterface(ClientInterfaceBase):
         if test_data:
             self.test_data = load_compressed_classification("mnist", ClientInterfaceBase.extract_bytes(test_data))
 
+        self.loaded_hash: int | None = None
+        self.params = dict()
+
     def train(self):
         # epochs: int
-        return self.network.train(self.train_data, self.epochs, measure=["avg_loss", "accuracy"])
+        return self.network.train(self.train_data, self.params["epochs"], measure=["avg_loss", "accuracy"])
 
     def test(self):
         return self.network.test(self.test_data, measure=["avg_loss", "accuracy"])
@@ -45,12 +48,21 @@ class ClientInterface(ClientInterfaceBase):
                 "params": params}
         return data
 
+    def should_load(self):
+        # hash: str
+        return self.loaded_hash != self.params["hash"]
+
     def load(self):
-        self.network.version = self.version
-        self.network.main_layer.set_trainable_params(iter(self.params))
+        # version: int
+        # params: list[float]
+        # hash: str
+        self.network.version = self.params["version"]
+        self.loaded_hash = self.params["hash"]
+        self.network.main_layer.set_trainable_params(map(float, self.params["params"]))
 
     def eval(self):
-        result = self.network.classify_single(np.array(self.inputs).reshape([28, 28]))
+        # inputs: list[float]
+        result = self.network.classify_single(np.array(self.params["inputs"]).reshape([28, 28]))
         print(result)
         return int(result)
 

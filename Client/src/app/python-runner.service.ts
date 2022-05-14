@@ -1,5 +1,4 @@
 import {Injectable} from '@angular/core';
-import {HttpClient} from "@angular/common/http";
 import {firstValueFrom, zip} from "rxjs";
 import {
     IPyodideInitMessage,
@@ -9,6 +8,7 @@ import {
 } from "./pyodide-worker-messages";
 import {AiName} from "./ai-repos.service";
 import {arrayBufferToString, ObjDict} from "./utils";
+import {AssetsHttpClientService} from "./assets-http-client.service";
 
 export type ScriptName = "test" | AiName;
 export type PythonRunCallback = (content: string, isError: boolean) => void;
@@ -20,7 +20,7 @@ export class PythonRunnerService {
     private worker?: Worker;
     private loaded?: ScriptName;
     
-    public constructor(private httpClient: HttpClient) {
+    public constructor(private assetsClient: AssetsHttpClientService) {
     }
     
     public async loadScript(name: ScriptName) {
@@ -82,7 +82,7 @@ export class PythonRunnerService {
     private async loadLibs(...names: string[]) {
         let libs = [];
         for (let name of names) {
-            libs.push(await firstValueFrom(this.httpClient.get("/assets/" + name + ".whl", {responseType: "arraybuffer"})));
+            libs.push(await firstValueFrom(this.assetsClient.get(name + ".whl", {responseType: "arraybuffer"})));
         }
         return libs;
     }
@@ -96,7 +96,7 @@ export class PythonRunnerService {
     }
     
     private async getCode(name: ScriptName): Promise<string> {
-        let observable = this.httpClient.get(`assets/python/${name}.py`, {responseType: "text"});
+        let observable = this.assetsClient.get(`python/${name}.py`, {responseType: "text"});
         return await firstValueFrom(observable);
     }
     
@@ -108,10 +108,10 @@ export class PythonRunnerService {
                 break;
             case "digit_recognition":
                 let [train, test] = await firstValueFrom(zip<readonly ArrayBuffer[]>([
-                        this.httpClient.get("assets/mnist_train.dat", {
+                        this.assetsClient.get("mnist_train.dat", {
                             responseType: "arraybuffer"
                         }),
-                        this.httpClient.get("assets/mnist_test.dat", {
+                        this.assetsClient.get("mnist_test.dat", {
                             responseType: "arraybuffer"
                         })
                     ])
