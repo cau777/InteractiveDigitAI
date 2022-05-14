@@ -21,7 +21,7 @@ function selectAction(data: PyodideWorkerMessage): Promise<unknown | undefined> 
     
     switch (data.action) {
         case "select":
-            return worker.select(data.code, data.data);
+            return worker.select(data.code, data.params);
         case "run":
             return worker.run(data.expression, data.params);
     }

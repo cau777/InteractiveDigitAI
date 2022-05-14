@@ -1,4 +1,3 @@
-import math
 from typing import Sequence
 
 import numpy as np
@@ -7,12 +6,8 @@ from codebase.general_utils import split_array
 from codebase.nn import TrainingConfig, TrainingExample
 from codebase.nn.layers import NNLayer
 from codebase.nn.loss_functions import LossFunction
-from codebase.nn.utils import select_random
 from codebase.nn.measure_trackers import create_tracker
-
-
-def find_best_batch_size():
-    return 64
+from codebase.nn.utils import select_random
 
 
 # TODO: find best batch size
@@ -37,7 +32,7 @@ class NeuralNetworkController:
     def train(self, data: Sequence[TrainingExample], epochs: int, batch_size: int = -1, measure: list[str] = None) \
             -> list[dict[str]]:
         if batch_size == -1:
-            batch_size = find_best_batch_size()
+            batch_size = self.find_best_batch_size()
 
         if not measure:
             measure = ["avg_loss"]
@@ -81,14 +76,14 @@ class NeuralNetworkController:
 
     def test(self, data: Sequence[TrainingExample], measure: list[str] = None, batch_size: int = -1):
         if batch_size == -1:
-            batch_size = find_best_batch_size()
+            batch_size = self.find_best_batch_size()
 
         if not measure:
             measure = ["avg_loss"]
 
         measures_trackers = [create_tracker(m) for m in measure]
         split = split_array(data, batch_size)
-        print(f"Started testing. Data split in {len(split)} batches of 16")
+        print(f"Started testing. Data split in {len(split)} batches of {batch_size}")
 
         for index, dataset in enumerate(split):
             print(f"Started test batch {index}")
@@ -123,3 +118,6 @@ class NeuralNetworkController:
             "backward": backward_times,
             "train": train_times
         }
+
+    def find_best_batch_size(self):
+        return 64

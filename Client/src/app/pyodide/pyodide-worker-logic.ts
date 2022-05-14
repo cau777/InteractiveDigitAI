@@ -37,7 +37,7 @@ export class PyodideWorkerLogic {
             namespace.update(pyParams);
             pyParams.destroy();
             
-            await pyodide.loadPackagesFromImports(code);
+            await pyodide.loadPackagesFromImports(code); // tODO: redirect output
             pyodide.runPython(code, {
                 globals: namespace
             });
