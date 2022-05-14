@@ -1,23 +1,26 @@
 import {IPyodide} from "./ipyodide";
 import {PyConsole} from "./py-console";
 import {PyProxy} from "./pyproxy";
-import {IPyodideOutputMessage} from "../pyodide-worker-messages";
+import {PyodideOutputMessage} from "../pyodide-worker-messages";
 import {ObjDict} from "../utils";
 
 export class PyodideWorkerLogic {
     private readonly pyodidePromise: Promise<IPyodide>;
     private pyconsole?: PyConsole;
     
-    public constructor(private libs: ArrayBuffer[]) {
+    public constructor(private libs: string[],
+                       private libsArchives: ArrayBuffer[]) {
         this.pyodidePromise = this.prepareEnv();
     }
     
     private async prepareEnv(): Promise<IPyodide> {
         let pyodide = await loadPyodide();
         
-        for (const lib of this.libs)
+        await pyodide.loadPackage(this.libs);
+        
+        for (const lib of this.libsArchives)
             await pyodide.unpackArchive(lib, "wheel");
-    
+        
         return pyodide;
     }
     
@@ -93,7 +96,7 @@ export class PyodideWorkerLogic {
     
     private static stdCallback(content: string, isError: boolean) {
         if (!content) return;
-        let message: IPyodideOutputMessage = {
+        let message: PyodideOutputMessage = {
             action: "output",
             content: content,
             isError: isError

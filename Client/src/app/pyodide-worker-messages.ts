@@ -1,36 +1,37 @@
 import {ObjDict} from "./utils";
 
-export interface IPyodideInitMessage {
+export type PyodideInitMessage = {
     action: "init";
-    libs: ArrayBuffer[];
+    libsArchives: ArrayBuffer[];
+    libs: string[];
 }
 
-export interface IPyodideSelectMessage {
+export type PyodideSelectMessage = {
     action: "select";
     code: string;
     data: ObjDict<any>;
 }
 
-export interface IPyodideCloseMessage {
+export type PyodideCloseMessage = {
     action: "close";
 }
 
-export interface IPyodideRunExpressionMessage {
+export type PyodideRunMessage = {
     action: "run";
     expression: string;
     params: ObjDict<any>;
 }
 
-export interface IPyodideOutputMessage {
+export type PyodideOutputMessage = {
     action: "output";
     content: string;
     isError: boolean;
 }
 
-export interface IPyodideResultMessage {
+export type PyodideResultMessage = {
     action: "result";
     content?: any;
 }
 
-export type PyodideWorkerMessage = IPyodideSelectMessage | IPyodideRunExpressionMessage | IPyodideOutputMessage |
-    IPyodideInitMessage | IPyodideResultMessage | IPyodideCloseMessage;
+export type PyodideWorkerMessage = PyodideSelectMessage | PyodideRunMessage | PyodideOutputMessage |
+    PyodideInitMessage | PyodideResultMessage | PyodideCloseMessage;

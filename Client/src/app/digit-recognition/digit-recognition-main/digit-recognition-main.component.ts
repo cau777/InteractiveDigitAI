@@ -42,7 +42,7 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
     @ViewChild("resizeCanvasElement")
     private resizeCanvasElement!: ElementRef<HTMLCanvasElement>;
     
-    public busy = true;
+    public state: "idle" | "loading" | "predicting" = "idle";
     public result?: number;
     private prevPos?: Position;
     private touchStartedInCanvas = false;
@@ -66,7 +66,7 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
         canvas.addEventListener("touchstart", () => {
             this.touchStartedInCanvas = true;
         });
-        canvas.addEventListener("mousedown", ()=>{
+        canvas.addEventListener("mousedown", () => {
             this.touchStartedInCanvas = true;
         });
         
@@ -100,11 +100,6 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
             this.prevPos = undefined;
             this.touchStartedInCanvas = false;
         });
-        
-        await this.pythonRunner.loadScript("digit_recognition");
-        await this.aiReposService.loadFromServer("digit_recognition", this.pythonRunner);
-        console.log("Loaded")
-        this.busy = false;
     }
     
     public clear() {
@@ -112,14 +107,16 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
     }
     
     public async predict() {
+        console.log("Loading");
+        this.state = "loading";
+        await this.pythonRunner.loadScript("digit_recognition");
+        await this.aiReposService.loadModel("digit_recognition", this.pythonRunner);
+        
         console.log("Predicting");
-        this.busy = true;
-        
+        this.state = "predicting";
         let image = this.getResizedImage();
-        
         this.result = await this.pythonRunner.run("instance.eval()", {inputs: image});
-        
-        this.busy = false;
+        this.state = "idle";
     }
     
     private getResizedImage() {

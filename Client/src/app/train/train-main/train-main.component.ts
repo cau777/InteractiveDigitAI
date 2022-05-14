@@ -56,7 +56,7 @@ export class TrainMainComponent {
         
         let interval = setInterval(this.updateLogs, 400);
         
-        await this.aiRepos.loadFromServer(name, this.pythonRunner);
+        await this.aiRepos.loadModel(name, this.pythonRunner);
         if (!this.prevModels.has(name))
             this.prevModels.set(name, await this.pythonRunner.run("instance.save()"));
         

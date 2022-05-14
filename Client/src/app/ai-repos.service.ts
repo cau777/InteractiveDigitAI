@@ -60,7 +60,7 @@ export class AiReposService {
                        private readonly httpClient: HttpClient) {
     }
     
-    public async loadFromServer(name: AiName, pythonRunner: PythonRunnerService) {
+    public async loadModel(name: AiName, pythonRunner: PythonRunnerService) {
         let cachedVersion = this.cached.get(name);
         let serverVersion = await this.loadInfo(name);
         
@@ -81,7 +81,7 @@ export class AiReposService {
                 params: modelData!.params
             });
         } else {
-            console.log("Skipped loading model")
+            console.log("Skipped loading model");
         }
     }
     

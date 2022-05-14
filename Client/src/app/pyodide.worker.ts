@@ -1,7 +1,7 @@
 // noinspection JSFileReferences
 /// <reference lib="webworker" />
 
-import {IPyodideInitMessage, IPyodideResultMessage, PyodideWorkerMessage} from "./pyodide-worker-messages";
+import {PyodideInitMessage, PyodideResultMessage, PyodideWorkerMessage} from "./pyodide-worker-messages";
 import {PyodideWorkerLogic} from "./pyodide/pyodide-worker-logic";
 
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js");
@@ -9,8 +9,8 @@ importScripts("https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js");
 let worker: PyodideWorkerLogic | undefined = undefined;
 let working: boolean = false;
 
-async function initWorker(data: IPyodideInitMessage) {
-    worker = new PyodideWorkerLogic(data.libs);
+async function initWorker(data: PyodideInitMessage) {
+    worker = new PyodideWorkerLogic(data.libs, data.libsArchives);
 }
 
 function selectAction(data: PyodideWorkerMessage): Promise<unknown | undefined> {
@@ -28,7 +28,7 @@ function selectAction(data: PyodideWorkerMessage): Promise<unknown | undefined> 
     throw new RangeError();
 }
 
-function postResult(r: IPyodideResultMessage) {
+function postResult(r: PyodideResultMessage) {
     // console.log("Worker posted result " + JSON.stringify(r));
     postMessage(r);
 }
