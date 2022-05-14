@@ -10,8 +10,13 @@ from codebase.persistence.utils import load_compressed_classification
 
 
 class ClientInterface(ClientInterfaceBase):
-    def __init__(self, train_data: str, test_data: str):
+    def __init__(self):
         super().__init__()
+        self.train_data = None
+        self.test_data = None
+        self.loaded_hash: int | None = None
+        self.params = dict()
+
         self.network = NeuralNetworkController(SequentialLayer(
             ReshapeLayer((1, 28, 28)),
 
@@ -25,15 +30,6 @@ class ClientInterface(ClientInterfaceBase):
             ReluLayer(),
             DenseLayer.create_random(100, 10, AdamLrOptimizer(), AdamLrOptimizer())
         ), CrossEntropyLossFunction())
-
-        if train_data:
-            self.train_data = load_compressed_classification("mnist", ClientInterfaceBase.extract_bytes(train_data))
-
-        if test_data:
-            self.test_data = load_compressed_classification("mnist", ClientInterfaceBase.extract_bytes(test_data))
-
-        self.loaded_hash: int | None = None
-        self.params = dict()
 
     def train(self):
         # epochs: int
@@ -69,6 +65,13 @@ class ClientInterface(ClientInterfaceBase):
     def benchmark(self):
         return self.network.benchmark((28, 28))
 
+    def load_train_set(self):
+        # data: str
+        self.train_data = load_compressed_classification("mnist", ClientInterfaceBase.extract_bytes(self.params["data"]))
 
-# noinspection PyUnresolvedReferences
-instance = ClientInterface(train_data, test_data)
+    def load_test_set(self):
+        # data: str
+        self.test_data = load_compressed_classification("mnist", ClientInterfaceBase.extract_bytes(self.params["data"]))
+
+
+instance = ClientInterface()

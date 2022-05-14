@@ -9,7 +9,7 @@ export type PyodideInitMessage = {
 export type PyodideSelectMessage = {
     action: "select";
     code: string;
-    data: ObjDict<any>;
+    params: ObjDict<any>;
 }
 
 export type PyodideCloseMessage = {

@@ -2,7 +2,9 @@ import {Component} from '@angular/core';
 import {PythonRunnerService} from "../../python-runner.service";
 import {AiName, AiReposService, AiModel} from "../../ai-repos.service";
 import {Log} from "../logs-view/logs-view.component";
-import {ObjDict} from "../../utils";
+import {arrayBufferToString, ObjDict} from "../../utils";
+import {firstValueFrom} from "rxjs";
+import {AssetsHttpClientService} from "../../assets-http-client.service";
 
 type FormModel = (TrainModel) & {
     scriptName: AiName;
@@ -24,7 +26,6 @@ function formatObjDict(obj: ObjDict<any>) {
 })
 export class TrainMainComponent {
     public trainOptions: AiName[] = ["digit_recognition"]
-    public current: AiModel | null = null;
     public logs = new Map<string, Log>();
     public entries: [string, Log][] = [];
     public busy = false;
@@ -32,10 +33,12 @@ export class TrainMainComponent {
     public result: string[] = [];
     private prevModels = new Map<AiName, AiModel>();
     
-    // private loadedAis = new Map<AiName, AiModel>();
+    private loadedTrainSet = false;
+    private loadedTestSet = false;
     
     public constructor(private pythonRunner: PythonRunnerService,
-                       private aiRepos: AiReposService) {
+                       private aiRepos: AiReposService,
+                       private assetsClient: AssetsHttpClientService) {
         this.updateLogs = this.updateLogs.bind(this);
     }
     
@@ -61,10 +64,12 @@ export class TrainMainComponent {
             this.prevModels.set(name, await this.pythonRunner.run("instance.save()"));
         
         if (this.model.action === "train") {
+            await this.loadTrainSet();
             let result: ObjDict<any>[] = await this.pythonRunner.run("instance.train()", {epochs: this.model.epochs}, callback);
             this.result = result.map((val, index) => `Epoch ${index} with ${formatObjDict(val)}`);
             await this.saveAi(name);
         } else if (this.model.action === "test") {
+            await this.loadTestSet();
             let result = await this.pythonRunner.run("instance.test()", {}, callback);
             this.result = [`Metrics: ${formatObjDict(result)}`];
         }
@@ -82,5 +87,19 @@ export class TrainMainComponent {
         let current: AiModel = await this.pythonRunner.run("instance.save()");
         await this.aiRepos.saveModelChanges(name, this.prevModels.get(name)!, current);
         this.prevModels.set(name, current);
+    }
+    
+    private async loadTrainSet() {
+        if (this.loadedTrainSet) return;
+        let data = await firstValueFrom(this.assetsClient.get("mnist_train.dat", {responseType: "arraybuffer"}));
+        await this.pythonRunner.run("instance.load_train_set()", {data: arrayBufferToString(data)});
+        this.loadedTrainSet = true;
+    }
+    
+    private async loadTestSet() {
+        if (this.loadedTestSet) return;
+        let data = await firstValueFrom(this.assetsClient.get("mnist_test.dat", {responseType: "arraybuffer"}));
+        await this.pythonRunner.run("instance.load_test_set()", {data: arrayBufferToString(data)});
+        this.loadedTestSet = true;
     }
 }

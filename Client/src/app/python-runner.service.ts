@@ -1,8 +1,8 @@
 import {Injectable} from '@angular/core';
-import {firstValueFrom, zip} from "rxjs";
+import {firstValueFrom} from "rxjs";
 import {PyodideInitMessage, PyodideRunMessage, PyodideSelectMessage, PyodideWorkerMessage} from "./pyodide-worker-messages";
 import {AiName} from "./ai-repos.service";
-import {arrayBufferToString, ObjDict} from "./utils";
+import {ObjDict} from "./utils";
 import {AssetsHttpClientService} from "./assets-http-client.service";
 
 export type ScriptName = "test" | AiName;
@@ -21,13 +21,12 @@ export class PythonRunnerService {
         this.worker = this.initWorker();
     }
     
-    public async loadScript(name: ScriptName) {
+    public async loadScript(name: ScriptName, params: ObjDict<any> = {}) {
         if (name === this.loaded) return;
         let worker = await this.worker;
         
         let code = await this.getCode(name);
-        let dependencies = await this.getDependencies(name);
-        let message: PyodideSelectMessage = {action: "select", code: code, data: dependencies};
+        let message: PyodideSelectMessage = {action: "select", code: code, params: params};
         await this.waitWorker(worker, message);
         
         console.log(name + " loaded");
@@ -96,30 +95,5 @@ export class PythonRunnerService {
     
     private async getCode(name: ScriptName): Promise<string> {
         return firstValueFrom(this.assetsClient.get(`python/${name}.py`, {responseType: "text"}));
-    }
-    
-    private async getDependencies(name: ScriptName) {
-        let result = new Map<string, any>();
-        
-        switch (name) {
-            case "test":
-                break;
-            case "digit_recognition":
-                let [train, test] = await firstValueFrom(zip<readonly ArrayBuffer[]>([
-                        this.assetsClient.get("mnist_train.dat", {
-                            responseType: "arraybuffer"
-                        }),
-                        this.assetsClient.get("mnist_test.dat", {
-                            responseType: "arraybuffer"
-                        })
-                    ])
-                );
-                result.set("train_data", arrayBufferToString(train));
-                result.set("test_data", arrayBufferToString(test));
-                
-                break;
-        }
-        
-        return result;
     }
 }
