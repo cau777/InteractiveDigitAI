@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {PythonRunnerService} from "../../python-runner.service";
 import {AiName, AiReposService, AiModel} from "../../ai-repos.service";
 import {Log} from "../logs-view/logs-view.component";
+import {ObjDict} from "../../utils";
 
 type FormModel = (TrainModel) & {
     scriptName: AiName;
@@ -11,6 +12,10 @@ type TrainModel = {
     action: "train";
     epochs: number;
 };
+
+function formatObjDict(obj: ObjDict<any>) {
+    return Object.entries(obj).map(([key, val]) => key + "=" + val).join(" ");
+}
 
 @Component({
     selector: 'app-train-main',
@@ -24,7 +29,9 @@ export class TrainMainComponent {
     public entries: [string, Log][] = [];
     public busy = false;
     public model: FormModel = {scriptName: "digit_recognition", action: "train", epochs: 0};
+    public result: string[] = [];
     private prevModels = new Map<AiName, AiModel>();
+    
     // private loadedAis = new Map<AiName, AiModel>();
     
     public constructor(private pythonRunner: PythonRunnerService,
@@ -50,14 +57,16 @@ export class TrainMainComponent {
         let interval = setInterval(this.updateLogs, 400);
         
         await this.aiRepos.loadFromServer(name, this.pythonRunner);
-        if (!this.prevModels.has(name)) 
+        if (!this.prevModels.has(name))
             this.prevModels.set(name, await this.pythonRunner.run("instance.save()"));
         
         if (this.model.action === "train") {
-            console.log(await this.pythonRunner.run("instance.train()",{epochs: this.model.epochs}, callback));
+            let result: ObjDict<any>[] = await this.pythonRunner.run("instance.train()", {epochs: this.model.epochs}, callback);
+            this.result = result.map((val, index) => `Epoch ${index} with ${formatObjDict(val)}`);
             await this.saveAi(name);
         } else if (this.model.action === "test") {
-            console.log(await this.pythonRunner.run("instance.test()", {}, callback));
+            let result = await this.pythonRunner.run("instance.test()", {}, callback);
+            this.result = [`Metrics: ${formatObjDict(result)}`];
         }
         
         clearInterval(interval);

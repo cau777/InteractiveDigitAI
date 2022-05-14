@@ -13,6 +13,8 @@ import {AssetsHttpClientService} from "./assets-http-client.service";
 export type ScriptName = "test" | AiName;
 export type PythonRunCallback = (content: string, isError: boolean) => void;
 
+// TODO: fix error when worker is busy
+
 @Injectable({
     providedIn: 'root'
 })
