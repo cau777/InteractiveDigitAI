@@ -91,8 +91,8 @@ export class AiReposService {
     }
     
     // TODO: avoid conflicts
-    public async saveModelChanges(name: AiName, prevParams: number[], newParams: number[]) {
-        const paramsDelta = zip(newParams, prevParams).map(o => o[0] - o[1]);
+    public async saveModelChanges(name: AiName, prev: AiModel, n: AiModel) {
+        const paramsDelta = zip(n.params, prev.params).map(o => o[0] - o[1]);
         
         let modelInfo = await this.loadInfo(name);
         let data = await this.loadModelData(name, modelInfo);
@@ -100,7 +100,7 @@ export class AiReposService {
         
         let updated = zip(data.params, paramsDelta).map(o => o[0] + o[1]);
         
-        modelInfo.version++;
+        modelInfo.version += n.version - prev.version;
         modelInfo.hash = await this.saveModelData(name, {params: updated});
         
         await this.saveModelInfo(name, modelInfo);

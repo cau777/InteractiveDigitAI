@@ -80,7 +80,7 @@ export class TrainMainComponent {
     
     private async saveAi(name: AiName) {
         let current: AiModel = await this.pythonRunner.run("instance.save()");
-        await this.aiRepos.saveModelChanges(name, this.prevModels.get(name)!.params, current.params);
+        await this.aiRepos.saveModelChanges(name, this.prevModels.get(name)!, current);
         this.prevModels.set(name, current);
     }
 }
