@@ -68,30 +68,21 @@ export class PyodideWorkerLogic {
             return js;
         }
         
-        await this.clearParams(params);
+        await this.clearParams();
         return result;
     }
     
     private async setParams(params: ObjDict<any>) {
         let pyodide = await this.pyodidePromise;
         let pyParams = pyodide.toPy(params);
-        let instance = this.pyconsole.globals.get("instance").__dict__;
-        instance.update(pyParams);
+        let instance = this.pyconsole.globals.get("instance");
+        instance.params.update(pyParams);
         pyParams.destroy();
-        
-        console.log(instance.keys().__str__());
     }
     
-    private async clearParams(params: ObjDict<any>) {
-        let pyodide = await this.pyodidePromise;
-        let instance = this.pyconsole.globals.get("instance").__dict__;
-        
-        for (let key of Object.keys(params)) {
-            let proxy = pyodide.toPy(key);
-            instance.pop(proxy);
-        }
-        
-        console.log(instance.keys().__str__());
+    private async clearParams() {
+        let instance = this.pyconsole.globals.get("instance");
+        instance.params.clear();
     }
     
     public async close() {

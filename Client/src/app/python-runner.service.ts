@@ -37,7 +37,11 @@ export class PythonRunnerService {
     }
     
     public async run(code: string, params: ObjDict<any> = {}, output?: PythonRunCallback) {
-        let message: IPyodideRunExpressionMessage = {action: "run", expression: code, params: params};
+        let message: IPyodideRunExpressionMessage = {
+            action: "run",
+            expression: code,
+            params: params
+        };
         let worker = this.worker!;
         
         return await new Promise<any>((resolve, reject) => {

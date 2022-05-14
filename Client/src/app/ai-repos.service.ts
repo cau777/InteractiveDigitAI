@@ -20,6 +20,11 @@ type ModelData = {
     params: number[];
 };
 
+type ModelCache = {
+    hash: string;
+    params: number[];
+};
+
 function floatsToBuffer(floats: number[]) {
     return Buffer.from(new Uint8Array(new Float32Array(floats).buffer).buffer);
 }
@@ -42,11 +47,6 @@ async function blobToBuffer(blob: Blob) {
         fileReader.onerror = reject;
         fileReader.readAsArrayBuffer(blob);
     });
-}
-
-type ModelCache = {
-    hash: string;
-    params: number[];
 }
 
 @Injectable({
@@ -72,8 +72,17 @@ export class AiReposService {
             serverVersion = await this.loadInfo(name);
         }
         
-        let modelData = await this.loadModelData(name, serverVersion);
-        await pythonRunner.run("instance.load()", {version: serverVersion.version, params: modelData!.params});
+        if (await pythonRunner.run("instance.should_load()", {hash: serverVersion.hash})) {
+            console.log("Loading model");
+            let modelData = await this.loadModelData(name, serverVersion);
+            await pythonRunner.run("instance.load()", {
+                version: serverVersion.version,
+                hash: serverVersion.hash,
+                params: modelData!.params
+            });
+        } else {
+            console.log("Skipped loading model")
+        }
     }
     
     private async saveFirstVersion(name: AiName, model: AiModel) {
@@ -114,9 +123,12 @@ export class AiReposService {
         if (currentInfo.hash === undefined) return null;
         
         let cached = this.cached.get(name);
-        if (cached !== undefined && cached.hash === currentInfo.hash)
+        if (cached !== undefined && cached.hash === currentInfo.hash) {
+            console.log("Loaded from dict cache");
             return {params: cached.params};
-        
+        }
+    
+        console.log("Loading from server");
         let fileURL = await firstValueFrom(this.storage.ref(AiReposService.createModelFile(name)).getDownloadURL());
         let blob = await firstValueFrom(this.httpClient.get(fileURL, {responseType: "blob"}));
         let buffer = await blobToBuffer(blob);
