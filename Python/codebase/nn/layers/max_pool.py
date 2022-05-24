@@ -1,5 +1,6 @@
 import numpy as np
 
+from codebase.nn import BatchConfig
 from codebase.nn.layers import NNLayer
 from codebase.nn.utils import get_dims_after_filter
 
@@ -9,7 +10,7 @@ class MaxPoolLayer(NNLayer):
         self.size = size
         self.stride = stride
 
-    def forward(self, inputs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def forward(self, inputs: np.ndarray, config: BatchConfig) -> tuple[np.ndarray, np.ndarray]:
         batch_size, channels, new_height, new_width = get_dims_after_filter(inputs.shape, self.size, self.stride)
         result = np.zeros((batch_size, channels, new_height, new_width))
 
@@ -23,7 +24,7 @@ class MaxPoolLayer(NNLayer):
 
         return result, inputs
 
-    def backward(self, grad: np.ndarray, cache: np.ndarray):
+    def backward(self, grad: np.ndarray, cache: np.ndarray, config: BatchConfig):
         inputs = cache
         batch_size, channels, new_height, new_width = get_dims_after_filter(inputs.shape, self.size, self.stride)
         result: np.ndarray = inputs * 0.0

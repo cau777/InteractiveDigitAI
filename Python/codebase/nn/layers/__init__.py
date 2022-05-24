@@ -6,3 +6,4 @@ from codebase.nn.layers.max_pool import MaxPoolLayer
 from codebase.nn.layers.reshape_layer import ReshapeLayer
 from codebase.nn.layers.sequential_layer import SequentialLayer
 from codebase.nn.layers.debug_layer import DebugLayer
+from codebase.nn.layers.dropout_layer import DropoutLayer

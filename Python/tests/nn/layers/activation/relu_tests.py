@@ -1,5 +1,7 @@
 import unittest
 import numpy as np
+
+from codebase.nn import BatchConfig
 from codebase.nn.layers.activation import ReluLayer
 
 
@@ -16,7 +18,7 @@ class MyTestCase(unittest.TestCase):
         arr = np.random.rand(10, 10)
         expected = np.vectorize(relu)(arr)
         layer = ReluLayer()
-        result, _ = layer.forward(arr)
+        result, _ = layer.forward(arr, BatchConfig(False))
         self.assertTrue(np.array_equal(expected, result))
 
     def test_backprop(self):
@@ -25,8 +27,9 @@ class MyTestCase(unittest.TestCase):
         expected = grad * np.vectorize(relu_gradient)(arr)
         layer = ReluLayer()
 
-        output, cache = layer.forward(arr)
-        self.assertTrue(np.array_equal(expected, layer.backward(grad, cache)))
+        config = BatchConfig(True)
+        output, cache = layer.forward(arr, config)
+        self.assertTrue(np.array_equal(expected, layer.backward(grad, cache, config)))
 
 
 if __name__ == '__main__':

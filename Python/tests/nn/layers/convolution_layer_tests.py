@@ -1,9 +1,10 @@
 import unittest
 import numpy as np
 
-from codebase.nn import TrainingConfig
+from codebase.nn import BatchConfig
 from codebase.nn.layers import ConvolutionLayer
 from codebase.nn.layers import convolution_layer
+from codebase.nn.lr_optimizers import ConstantLrOptimizer
 from codebase.nn.loss_functions import MseLossFunction
 from codebase.nn.lr_optimizers import AdamLrOptimizer
 from codebase.nn.utils import init_random
@@ -65,8 +66,8 @@ class ConvolutionLayerTests(unittest.TestCase):
     def test_feed_forward(self):
         image, kernel, expected = get_image_example()
 
-        layer = convolution_layer.ConvolutionLayer(kernel, None)
-        output, _ = layer.forward(image)
+        layer = convolution_layer.ConvolutionLayer(kernel, ConstantLrOptimizer())
+        output, _ = layer.forward(image, BatchConfig(False))
         self.assertEqual(expected.shape, output.shape)
         self.assertTrue(np.array_equal(expected, output))
 
@@ -75,8 +76,8 @@ class ConvolutionLayerTests(unittest.TestCase):
         image_batch = np.vstack([image, -image])
         expected_batch = np.vstack([expected, -expected])
 
-        layer = convolution_layer.ConvolutionLayer(kernel, None)
-        output, _ = layer.forward(image_batch)
+        layer = convolution_layer.ConvolutionLayer(kernel, ConstantLrOptimizer())
+        output, _ = layer.forward(image_batch, BatchConfig(False))
         self.assertEqual(expected_batch.shape, output.shape)
         self.assertTrue(np.array_equal(expected_batch, output))
 
@@ -91,11 +92,12 @@ class ConvolutionLayerTests(unittest.TestCase):
         image = np.random.rand(batch_size, in_channels, height, width)
         kernel = np.random.rand(out_channels, in_channels, kernel_size, kernel_size)
 
-        layer = convolution_layer.ConvolutionLayer(kernel, None)
-        output, cache = layer.forward(image)
+        config = BatchConfig(False)
+        layer = convolution_layer.ConvolutionLayer(kernel, ConstantLrOptimizer())
+        output, cache = layer.forward(image, config)
         expected_output_shape = (batch_size, out_channels, height - kernel_size + 1, width - kernel_size + 1)
 
-        grad = layer.backward(output, cache)
+        grad = layer.backward(output, cache, config)
         expected_grad_shape = (batch_size, in_channels, height, width)
         self.assertEqual(expected_output_shape, output.shape)
         self.assertEqual(expected_grad_shape, grad.shape)
@@ -110,13 +112,14 @@ class ConvolutionLayerTests(unittest.TestCase):
 
         for e in range(100):
             inputs = np.vstack([image, image])
-            output, cache = layer.forward(inputs)
-            config = TrainingConfig(e + 1, 2)
+            config = BatchConfig(True, e + 1)
+            output, cache = layer.forward(inputs, config)
             loss_grad = loss_func.calc_loss_gradient(expected, output)
-            layer.backward(loss_grad, cache)
+            layer.backward(loss_grad, cache, config)
             layer.train(config)
 
-        final_loss = loss_func.calc_loss(expected, layer.forward(image)[0])
+        final, _ = layer.forward(image, BatchConfig(False, 100))
+        final_loss = loss_func.calc_loss(expected, final)
         self.assertLess(final_loss.mean(), 0.0001)
 
     def test_training(self):
@@ -127,16 +130,14 @@ class ConvolutionLayerTests(unittest.TestCase):
         loss_func = MseLossFunction()
 
         for e in range(100):
-            output, cache = layer.forward(image)
-            config = TrainingConfig(e + 1, 2)
+            config = BatchConfig(True, e + 1)
+            output, cache = layer.forward(image, config)
             loss_grad = loss_func.calc_loss_gradient(expected, output)
-            layer.backward(loss_grad, cache)
+            layer.backward(loss_grad, cache, config)
             layer.train(config)
 
-            # final_loss = loss_func.calc_loss(expected, layer.feed_forward(image))
-            # print(final_loss.mean())
-
-        final_loss = loss_func.calc_loss(expected, layer.forward(image)[0])
+        final, _ = layer.forward(image, BatchConfig(False, 100))
+        final_loss = loss_func.calc_loss(expected, final)
         self.assertLess(final_loss.mean(), 0.3)
 
 

@@ -1,5 +1,6 @@
 import numpy as np
 
+from codebase.nn import BatchConfig
 from codebase.nn.layers import NNLayer
 
 
@@ -9,8 +10,8 @@ class ReshapeLayer(NNLayer):
             raise ValueError("Shape can't contain -1")
         self.shape = shape
 
-    def forward(self, inputs: np.ndarray) -> tuple[np.ndarray, tuple[int, ...]]:
+    def forward(self, inputs: np.ndarray, config: BatchConfig) -> tuple[np.ndarray, tuple[int, ...]]:
         return inputs.reshape((inputs.shape[0], *self.shape)), inputs.shape
 
-    def backward(self, grad: np.ndarray, cache: tuple[int, ...]):
+    def backward(self, grad: np.ndarray, cache: tuple[int, ...], config: BatchConfig):
         return grad.reshape(cache)

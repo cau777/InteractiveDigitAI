@@ -2,6 +2,7 @@ import unittest
 
 import numpy as np
 
+from codebase.nn import BatchConfig
 from codebase.nn.utils import init_random
 from codebase.nn.layers.max_pool import MaxPoolLayer
 from codebase.nn.utils import get_dims_after_filter
@@ -58,7 +59,7 @@ class MyTestCase(unittest.TestCase):
     def test_feed_forward0(self):
         array = np.random.rand(1, 1, 8, 8)
         layer = MaxPoolLayer(1, 1)
-        output, _ = layer.forward(array)
+        output, _ = layer.forward(array, BatchConfig(False))
         self.assertEqual(array.shape, output.shape)
         self.assertTrue(np.array_equal(array, output))
 
@@ -69,11 +70,11 @@ class MyTestCase(unittest.TestCase):
                 with self.subTest(size=size, stride=stride):
                     expected = manual_pooling(array, size, stride)
                     layer = MaxPoolLayer(size, stride)
-                    output, _ = layer.forward(array)
+                    output, _ = layer.forward(array, BatchConfig(False))
                     self.assertEqual(expected.shape, output.shape)
                     self.assertTrue(np.array_equal(expected, output))
 
-    def test_1(self):
+    def test_backward(self):
         batch, channels, height, width = 2, 3, 4, 6
         arr: np.ndarray = np.arange(batch * channels * height * width).reshape((batch, channels, height, width))
         for size in range(2, 4):
@@ -81,7 +82,7 @@ class MyTestCase(unittest.TestCase):
                 with self.subTest(size=size, stride=stride):
                     layer = MaxPoolLayer(size, stride)
                     grad = np.random.rand(*get_dims_after_filter(arr.shape, size, stride))
-                    result = layer.backward(grad, arr)
+                    result = layer.backward(grad, arr, BatchConfig(False))
                     expected = manual_backprop(arr, grad, size, stride)
                     self.assertGreater(0.01, np.sum(np.abs(result - expected)))
 

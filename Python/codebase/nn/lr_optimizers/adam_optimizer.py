@@ -1,7 +1,7 @@
 import numpy as np
 
 from codebase.nn.lr_optimizers import LrOptimizer
-from codebase.nn import TrainingConfig
+from codebase.nn import BatchConfig
 from codebase.nn.utils import lerp_arrays, epsilon
 
 
@@ -10,10 +10,10 @@ class AdamLrOptimizer(LrOptimizer):
         self.alpha = alpha
         self.decay1 = decay1
         self.decay2 = decay2
-        self.moment1: np.ndarray|None = None
-        self.moment2: np.ndarray|None = None
+        self.moment1: np.ndarray | None = None
+        self.moment2: np.ndarray | None = None
 
-    def optimize(self, gradients: np.ndarray, config: TrainingConfig) -> np.ndarray:
+    def optimize(self, gradients: np.ndarray, config: BatchConfig) -> np.ndarray:
         if self.moment1 is None:
             self.moment1 = np.zeros(gradients.shape)
         if self.moment2 is None:
@@ -26,5 +26,3 @@ class AdamLrOptimizer(LrOptimizer):
         moment2_b = self.moment2 / (1 - (self.decay2 ** config.epoch))
 
         return self.alpha * moment1_b / (np.sqrt(moment2_b) + epsilon)
-
-

@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from codebase.nn import TrainingConfig
+from codebase.nn import BatchConfig
 from codebase.nn.loss_functions.cross_entropy_loss_function import softmax
 from codebase.nn.loss_functions import CrossEntropyLossFunction
 from codebase.nn.layers import DenseLayer
@@ -46,11 +46,11 @@ class MyTestCase(unittest.TestCase):
         prev_loss = None
 
         for e in range(50):
-            config = TrainingConfig(e + 1, 1)
-            outputs, cache = layer.forward(inputs)
+            config = BatchConfig(True, e + 1)
+            outputs, cache = layer.forward(inputs, config)
             loss = loss_func.calc_loss(expected, outputs)
             loss_grad = loss_func.calc_loss_gradient(expected, outputs)
-            layer.backward(loss_grad, cache)
+            layer.backward(loss_grad, cache, config)
             layer.train(config)
 
             if prev_loss is not None:

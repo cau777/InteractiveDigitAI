@@ -1,7 +1,7 @@
 import numpy as np
 from math import sqrt
 from typing import Iterator
-from codebase.nn import TrainingConfig
+from codebase.nn import BatchConfig
 from codebase.nn.layers import NNLayer
 from codebase.nn.lr_optimizers import LrOptimizer
 from codebase.nn.utils import get_dims_after_filter
@@ -57,7 +57,7 @@ class ConvolutionLayer(NNLayer):
         kernels = np.random.normal(0, std_dev, (out_channels, in_channels, kernel_size, kernel_size))
         return ConvolutionLayer(kernels, optimizer, stride, padding)
 
-    def forward(self, inputs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    def forward(self, inputs: np.ndarray, config: BatchConfig) -> tuple[np.ndarray, np.ndarray]:
         padded = pad4d(inputs, self.padding)
         # batch x in_channels x height x width
 
@@ -84,7 +84,7 @@ class ConvolutionLayer(NNLayer):
         return result, padded
 
     # @profiler
-    def backward(self, grad: np.ndarray, cache: np.ndarray):
+    def backward(self, grad: np.ndarray, cache: np.ndarray, config: BatchConfig):
         padded = cache
         self.apply_gradient(padded, grad)
 
@@ -101,7 +101,8 @@ class ConvolutionLayer(NNLayer):
                 batch_mul = u_kernels * u_current_gradient[h, w]
                 batch_sum = np.sum(batch_mul, -1)
                 batch_t = np.moveaxis(batch_sum, 3, 0)
-                padded_input_grad[:, :, h_offset:h_offset + self.kernel_size, w_offset:w_offset + self.kernel_size] += batch_t
+                padded_input_grad[:, :, h_offset:h_offset + self.kernel_size, w_offset:w_offset + self.kernel_size] \
+                    += batch_t
 
         result = remove_padding4d(padded_input_grad, self.padding)
         return result
@@ -123,7 +124,7 @@ class ConvolutionLayer(NNLayer):
 
         self.kernels_grad += factor * kernels_grad
 
-    def train(self, config: TrainingConfig):
+    def train(self, config: BatchConfig):
         optimized = self.optimizer.optimize(self.kernels_grad, config)
         self.kernels += optimized
         self.kernels_grad *= 0
