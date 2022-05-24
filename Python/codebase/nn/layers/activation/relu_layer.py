@@ -1,13 +1,12 @@
 import numpy as np
 
 from codebase.nn.layers import NNLayer
-from codebase.nn import TrainingConfig
 
 
 class ReluLayer(NNLayer):
-    def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
-        return inputs * (inputs > 0)
+    def forward(self, inputs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        positives = inputs > 0
+        return inputs * positives, positives
 
-    def backpropagate_gradient(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
-                               config: TrainingConfig):
-        return current_gradient * (inputs > 0)
+    def backward(self, grad: np.ndarray, cache: np.ndarray):
+        return grad * cache

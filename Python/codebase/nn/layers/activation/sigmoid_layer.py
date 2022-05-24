@@ -1,13 +1,12 @@
 import numpy as np
 
 from codebase.nn.layers import NNLayer
-from codebase.nn import TrainingConfig
 
 
 class SigmoidLayer(NNLayer):
-    def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
-        return 1 / (1 + np.exp(-inputs))
+    def forward(self, inputs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        result = 1 / (1 + np.exp(-inputs))
+        return result, result
 
-    def backpropagate_gradient(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
-                               config: TrainingConfig):
-        return current_gradient * outputs * (1 - outputs)
+    def backward(self, grad: np.ndarray, cache: np.ndarray):
+        return grad * cache * (1 - cache)

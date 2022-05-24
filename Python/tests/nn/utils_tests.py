@@ -1,6 +1,6 @@
 import unittest
 
-from codebase.nn.utils import get_dims_after_filter, split_array
+from codebase.nn.utils import get_dims_after_filter
 
 
 class MyTestCase(unittest.TestCase):
@@ -14,11 +14,6 @@ class MyTestCase(unittest.TestCase):
         self.assertEqual((1, 1, 3, 3), get_dims_after_filter((1, 1, 4, 4), 2, 1))
 
         self.assertEqual((1, 1, 2, 2), get_dims_after_filter((1, 1, 6, 6), 2, 3))
-
-    def test_split_array(self):
-        self.assertEqual([[1, 2, 3], [4, 5, 6]], split_array([1, 2, 3, 4, 5, 6], 3))
-        self.assertEqual([[1, 2, 3], [4, 5, 6], [7]], split_array([1, 2, 3, 4, 5, 6, 7], 3))
-
 
 
 if __name__ == '__main__':

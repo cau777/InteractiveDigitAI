@@ -16,14 +16,17 @@ class MyTestCase(unittest.TestCase):
         arr = np.random.rand(10, 10)
         expected = np.vectorize(relu)(arr)
         layer = ReluLayer()
-        self.assertTrue(np.array_equal(expected, layer.feed_forward(arr)))
+        result, _ = layer.forward(arr)
+        self.assertTrue(np.array_equal(expected, result))
 
     def test_backprop(self):
         arr = np.random.rand(10, 10)
         grad = np.random.rand(10, 10)
         expected = grad * np.vectorize(relu_gradient)(arr)
         layer = ReluLayer()
-        self.assertTrue(np.array_equal(expected, layer.backpropagate_gradient(arr, None, grad, None)))
+
+        output, cache = layer.forward(arr)
+        self.assertTrue(np.array_equal(expected, layer.backward(grad, cache)))
 
 
 if __name__ == '__main__':

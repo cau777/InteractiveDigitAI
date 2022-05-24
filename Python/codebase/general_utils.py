@@ -21,3 +21,10 @@ def split_array(array: Sequence[T], max_size: int):
         sub_arrays.append(array[parts * max_size:])
 
     return sub_arrays
+
+
+def product(*elements: Sequence[int]):
+    result = 1
+    for e in elements:
+        result *= e
+    return result

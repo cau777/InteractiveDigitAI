@@ -57,7 +57,7 @@ class ConvolutionLayer(NNLayer):
         kernels = np.random.normal(0, std_dev, (out_channels, in_channels, kernel_size, kernel_size))
         return ConvolutionLayer(kernels, optimizer, stride, padding)
 
-    def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
+    def forward(self, inputs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
         padded = pad4d(inputs, self.padding)
         # batch x in_channels x height x width
 
@@ -81,18 +81,14 @@ class ConvolutionLayer(NNLayer):
         # batch x height x width x out_channels
 
         result = np.moveaxis(summed, 3, 1)
-        return result
+        return result, padded
 
     # @profiler
-    def backpropagate_gradient(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
-                               config: TrainingConfig):
-        padded = pad4d(inputs, self.padding)
-        self.apply_gradient(padded, current_gradient)
+    def backward(self, grad: np.ndarray, cache: np.ndarray):
+        padded = cache
+        self.apply_gradient(padded, grad)
 
-        # r_current_gradient = np.transpose(current_gradient, [0, 2, 3, 1])
-        # r_kernels = np.moveaxis(self.kernels, 0, 3)
-
-        u_current_gradient = np.transpose(current_gradient, [2, 3, 0, 1])
+        u_current_gradient = np.transpose(grad, [2, 3, 0, 1])
         u_kernels = np.expand_dims(np.moveaxis(self.kernels, 0, 3), -2)
 
         batch, channels, new_height, new_width = get_dims_after_filter(padded.shape, self.kernel_size, self.stride)
@@ -106,14 +102,6 @@ class ConvolutionLayer(NNLayer):
                 batch_sum = np.sum(batch_mul, -1)
                 batch_t = np.moveaxis(batch_sum, 3, 0)
                 padded_input_grad[:, :, h_offset:h_offset + self.kernel_size, w_offset:w_offset + self.kernel_size] += batch_t
-                # for b in range(batch):
-                #     padded_input_grad[b, :, h_offset:h_offset + self.kernel_size, w_offset:w_offset + self.kernel_size]  += batch_t[b]
-
-                # for b in range(batch):
-                #     mul = r_kernels * r_current_gradient[b, h, w]
-                #     s = np.sum(mul, -1)
-                #     assert np.array_equal(s, batch_t[b])
-                #     padded_input_grad[b, :, h_offset:h_offset + self.kernel_size, w_offset:w_offset + self.kernel_size] += batch_t[b]
 
         result = remove_padding4d(padded_input_grad, self.padding)
         return result
@@ -125,7 +113,6 @@ class ConvolutionLayer(NNLayer):
         mean_inputs: np.ndarray = inputs.mean(0)
         mean_gradient: np.ndarray = gradient.mean(0)
 
-        # for ic in range(self.in_channels):
         for h in range(self.kernel_size):
             for w in range(self.kernel_size):
                 affected: np.ndarray = mean_inputs[:,

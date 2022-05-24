@@ -21,13 +21,13 @@ class NeuralNetworkController:
         return self.evaluate_batch(np.stack([inputs]))[0]
 
     def evaluate_batch(self, inputs: np.ndarray):
-        return self.main_layer.feed_forward(inputs)
+        return self.main_layer.forward(inputs)[0]
 
     def classify_single(self, inputs: np.ndarray) -> int:
         return self.classify_batch(np.stack([inputs]))[0]
 
     def classify_batch(self, inputs: np.ndarray):
-        return np.argmax(self.main_layer.feed_forward(inputs), -1)
+        return np.argmax(self.main_layer.forward(inputs)[0], -1)
 
     def train(self, data: Sequence[TrainingExample], epochs: int, batch_size: int = -1, measure: list[str] = None) \
             -> list[dict[str]]:
@@ -51,12 +51,12 @@ class NeuralNetworkController:
             labels = np.stack([example.label for example in mini_batch_examples])
 
             # print("Forward propagating inputs")
-            outputs = self.main_layer.feed_forward(inputs)
+            outputs, cache = self.main_layer.forward(inputs)
             loss = self.loss_func.calc_loss(labels, outputs)
             loss_grad = self.loss_func.calc_loss_gradient(labels, outputs)
 
             # print("Back propagating gradients")
-            self.main_layer.backpropagate_gradient(inputs, outputs, loss_grad, config)
+            self.main_layer.backward(loss_grad, cache)
 
             for b in range(batch_size):
                 for t in measures_trackers:
@@ -90,7 +90,7 @@ class NeuralNetworkController:
 
             inputs = np.stack([example.inputs for example in dataset])
             labels = np.stack([example.label for example in dataset])
-            outputs = self.main_layer.feed_forward(inputs)
+            outputs, _ = self.main_layer.forward(inputs)
             loss = self.loss_func.calc_loss(labels, outputs)
 
             for b in range(len(dataset)):
@@ -110,8 +110,8 @@ class NeuralNetworkController:
         backward_times = []
         train_times = []
 
-        outputs = self.main_layer.benchmark_feed_forward(inputs, forward_times)
-        self.main_layer.benchmark_backprapagate(inputs, outputs, outputs / 2, config, backward_times)
+        outputs, cache = self.main_layer.benchmark_forward(inputs, forward_times)
+        self.main_layer.benchmark_backward(outputs / 2, cache, backward_times)
         self.main_layer.benchmark_train(config, train_times)
         return {
             "forward": forward_times,

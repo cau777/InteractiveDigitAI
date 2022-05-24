@@ -1,7 +1,6 @@
 import numpy as np
 
 from codebase.nn.layers import NNLayer
-from codebase.nn import TrainingConfig
 
 
 class ReshapeLayer(NNLayer):
@@ -10,9 +9,8 @@ class ReshapeLayer(NNLayer):
             raise ValueError("Shape can't contain -1")
         self.shape = shape
 
-    def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
-        return inputs.reshape((inputs.shape[0], *self.shape))
+    def forward(self, inputs: np.ndarray) -> tuple[np.ndarray, tuple[int, ...]]:
+        return inputs.reshape((inputs.shape[0], *self.shape)), inputs.shape
 
-    def backpropagate_gradient(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
-                               config: TrainingConfig):
-        return current_gradient.reshape(inputs.shape)
+    def backward(self, grad: np.ndarray, cache: tuple[int, ...]):
+        return grad.reshape(cache)

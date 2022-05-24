@@ -7,28 +7,22 @@ from codebase.nn import TrainingConfig
 class SequentialLayer(NNLayer):
     def __init__(self, *layers: NNLayer):
         self.layers = list(layers)
-        self.layers_inputs: list[np.ndarray] | None = None
 
-    def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
-        self.layers_inputs = list([None] * (len(self.layers) + 1))
-        self.layers_inputs[0] = inputs
+    def forward(self, inputs: np.ndarray) -> tuple[np.ndarray, list]:
+        cache: list = [None] * len(self.layers)
+        layer_inputs = inputs
 
         for i in range(len(self.layers)):
-            self.layers_inputs[i + 1] = self.layers[i].feed_forward(self.layers_inputs[i])
+            # print(self.layers[i].__class__.__name__)
+            layer_inputs, cache[i] = self.layers[i].forward(layer_inputs)
 
-        return self.layers_inputs[-1]
+        return layer_inputs, cache
 
-    def backpropagate_gradient(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
-                               config: TrainingConfig) -> np.ndarray:
-        if self.layers_inputs is None:
-            raise ValueError("feed_forward should be called before backpropagate_gradient")
-
-        gradient = current_gradient
+    def backward(self, grad: np.ndarray, cache: list) -> np.ndarray:
+        gradient = grad
         for i in range(len(self.layers) - 1, -1, -1):
-            gradient = self.layers[i].backpropagate_gradient(self.layers_inputs[i], self.layers_inputs[i + 1], gradient,
-                                                             config)
+            gradient = self.layers[i].backward(gradient, cache[i])
 
-        self.layers_inputs = None
         return gradient
 
     def train(self, config: TrainingConfig):
@@ -48,21 +42,20 @@ class SequentialLayer(NNLayer):
         for layer in self.layers:
             layer.set_trainable_params(params_iterator)
 
-    def benchmark_feed_forward(self, inputs: np.ndarray, results: list[tuple[str, float]]) -> np.ndarray:
-        self.layers_inputs = list([None] * (len(self.layers) + 1))
-        self.layers_inputs[0] = inputs
+    def benchmark_forward(self, inputs: np.ndarray, results: list[tuple[str, float]]) -> tuple[np.ndarray, object]:
+        cache: list = [None] * len(self.layers)
+        layer_inputs = inputs
 
         for i in range(len(self.layers)):
-            self.layers_inputs[i + 1] = self.layers[i].benchmark_feed_forward(self.layers_inputs[i], results)
+            layer_inputs, cache[i] = self.layers[i].benchmark_forward(layer_inputs, results)
 
-        return self.layers_inputs[-1]
+        return layer_inputs, cache
 
-    def benchmark_backprapagate(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
-                                config: TrainingConfig, results: list[tuple[str, float]]) -> np.ndarray:
+    def benchmark_backward(self, current_gradient: np.ndarray, cache: list,
+                           results: list[tuple[str, float]]) -> np.ndarray:
         gradient = current_gradient
         for i in range(len(self.layers) - 1, -1, -1):
-            gradient = self.layers[i].benchmark_backprapagate(self.layers_inputs[i], self.layers_inputs[i + 1],
-                                                              gradient, config, results)
+            gradient = self.layers[i].benchmark_backward(gradient, cache[i], results)
         return gradient
 
     def benchmark_train(self, config: TrainingConfig, results: list[tuple[str, float]]):

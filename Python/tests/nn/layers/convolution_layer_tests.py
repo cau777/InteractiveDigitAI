@@ -66,7 +66,7 @@ class ConvolutionLayerTests(unittest.TestCase):
         image, kernel, expected = get_image_example()
 
         layer = convolution_layer.ConvolutionLayer(kernel, None)
-        output = layer.feed_forward(image)
+        output, _ = layer.forward(image)
         self.assertEqual(expected.shape, output.shape)
         self.assertTrue(np.array_equal(expected, output))
 
@@ -76,7 +76,7 @@ class ConvolutionLayerTests(unittest.TestCase):
         expected_batch = np.vstack([expected, -expected])
 
         layer = convolution_layer.ConvolutionLayer(kernel, None)
-        output = layer.feed_forward(image_batch)
+        output, _ = layer.forward(image_batch)
         self.assertEqual(expected_batch.shape, output.shape)
         self.assertTrue(np.array_equal(expected_batch, output))
 
@@ -92,10 +92,10 @@ class ConvolutionLayerTests(unittest.TestCase):
         kernel = np.random.rand(out_channels, in_channels, kernel_size, kernel_size)
 
         layer = convolution_layer.ConvolutionLayer(kernel, None)
-        output = layer.feed_forward(image)
+        output, cache = layer.forward(image)
         expected_output_shape = (batch_size, out_channels, height - kernel_size + 1, width - kernel_size + 1)
 
-        grad = layer.backpropagate_gradient(image, output, output, TrainingConfig(1, 1))
+        grad = layer.backward(output, cache)
         expected_grad_shape = (batch_size, in_channels, height, width)
         self.assertEqual(expected_output_shape, output.shape)
         self.assertEqual(expected_grad_shape, grad.shape)
@@ -110,13 +110,13 @@ class ConvolutionLayerTests(unittest.TestCase):
 
         for e in range(100):
             inputs = np.vstack([image, image])
-            output = layer.feed_forward(inputs)
+            output, cache = layer.forward(inputs)
             config = TrainingConfig(e + 1, 2)
             loss_grad = loss_func.calc_loss_gradient(expected, output)
-            layer.backpropagate_gradient(inputs, output, loss_grad, config)
+            layer.backward(loss_grad, cache)
             layer.train(config)
 
-        final_loss = loss_func.calc_loss(expected, layer.feed_forward(image))
+        final_loss = loss_func.calc_loss(expected, layer.forward(image)[0])
         self.assertLess(final_loss.mean(), 0.0001)
 
     def test_training(self):
@@ -127,17 +127,17 @@ class ConvolutionLayerTests(unittest.TestCase):
         loss_func = MseLossFunction()
 
         for e in range(100):
-            output = layer.feed_forward(image)
+            output, cache = layer.forward(image)
             config = TrainingConfig(e + 1, 2)
             loss_grad = loss_func.calc_loss_gradient(expected, output)
-            layer.backpropagate_gradient(image, output, loss_grad, config)
+            layer.backward(loss_grad, cache)
             layer.train(config)
 
             # final_loss = loss_func.calc_loss(expected, layer.feed_forward(image))
             # print(final_loss.mean())
 
-        final_loss = loss_func.calc_loss(expected, layer.feed_forward(image))
-        self.assertLess(final_loss.mean(), 0.2)
+        final_loss = loss_func.calc_loss(expected, layer.forward(image)[0])
+        self.assertLess(final_loss.mean(), 0.3)
 
 
 if __name__ == '__main__':

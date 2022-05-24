@@ -5,9 +5,9 @@ from codebase.nn import TrainingConfig
 
 
 class TanhLayer(NNLayer):
-    def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
-        return np.tanh(inputs)
+    def forward(self, inputs: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+        result = np.tanh(inputs)
+        return result, result
 
-    def backpropagate_gradient(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
-                               config: TrainingConfig):
-        return current_gradient * (1 - np.square(outputs))
+    def backward(self, grad: np.ndarray, cache: np.ndarray):
+        return grad * (1 - np.square(cache))

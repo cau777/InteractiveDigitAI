@@ -58,7 +58,7 @@ class MyTestCase(unittest.TestCase):
     def test_feed_forward0(self):
         array = np.random.rand(1, 1, 8, 8)
         layer = MaxPoolLayer(1, 1)
-        output = layer.feed_forward(array)
+        output, _ = layer.forward(array)
         self.assertEqual(array.shape, output.shape)
         self.assertTrue(np.array_equal(array, output))
 
@@ -69,7 +69,7 @@ class MyTestCase(unittest.TestCase):
                 with self.subTest(size=size, stride=stride):
                     expected = manual_pooling(array, size, stride)
                     layer = MaxPoolLayer(size, stride)
-                    output = layer.feed_forward(array)
+                    output, _ = layer.forward(array)
                     self.assertEqual(expected.shape, output.shape)
                     self.assertTrue(np.array_equal(expected, output))
 
@@ -81,7 +81,7 @@ class MyTestCase(unittest.TestCase):
                 with self.subTest(size=size, stride=stride):
                     layer = MaxPoolLayer(size, stride)
                     grad = np.random.rand(*get_dims_after_filter(arr.shape, size, stride))
-                    result = layer.backpropagate_gradient(arr, None, grad, None)
+                    result = layer.backward(grad, arr)
                     expected = manual_backprop(arr, grad, size, stride)
                     self.assertGreater(0.01, np.sum(np.abs(result - expected)))
 

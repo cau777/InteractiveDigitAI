@@ -2,14 +2,16 @@ from typing import Iterator
 
 import numpy as np
 
+from codebase.nn import TrainingConfig
 from codebase.nn.layers import NNLayer
 from codebase.nn.lr_optimizers import LrOptimizer
-from codebase.nn import TrainingConfig
+
+Cache = tuple[np.ndarray, np.ndarray]
 
 
 class DenseLayer(NNLayer):
     def __init__(self, weights: np.ndarray, biases: np.ndarray, biases_enabled: bool, weights_optimizer: LrOptimizer,
-                 biases_optimizer: LrOptimizer):
+                 biases_optimizer: LrOptimizer, dropout_rate: float = None):
         self.weights = weights
         self.biases = biases
         self.weights_grad = weights * 0
@@ -17,10 +19,11 @@ class DenseLayer(NNLayer):
         self.biases_enabled = biases_enabled
         self.weights_optimizer = weights_optimizer
         self.biases_optimizer = biases_optimizer
+        self.dropout_rate = dropout_rate
 
     @staticmethod
     def create_random(in_values: int, out_values: int, weights_optimizer: LrOptimizer, biases_optimizer: LrOptimizer,
-                      biases_enabled: bool = True):
+                      biases_enabled: bool = True, dropout_rate: float = None):
         if in_values < 1:
             raise ValueError("in_values can't be less than 1")
 
@@ -30,27 +33,36 @@ class DenseLayer(NNLayer):
         std_dev = out_values ** -0.5
         weights = np.random.normal(0, std_dev, (out_values, in_values))
         biases = np.zeros((out_values, 1))
-        return DenseLayer(weights, biases, biases_enabled, weights_optimizer, biases_optimizer)
+        return DenseLayer(weights, biases, biases_enabled, weights_optimizer, biases_optimizer, dropout_rate)
 
-    def feed_forward(self, inputs: np.ndarray) -> np.ndarray:
+    def forward(self, inputs: np.ndarray) -> tuple[np.ndarray, Cache]:
         result = self.weights @ np.expand_dims(inputs, -1)
         if self.biases_enabled:
             result += self.biases
-        return np.squeeze(result, -1)
 
-    def backpropagate_gradient(self, inputs: np.ndarray, outputs: np.ndarray, current_gradient: np.ndarray,
-                               config: TrainingConfig):
-        factor = 1
-        current_gradient = np.expand_dims(current_gradient, -1)
+        dropout = None
+        if self.dropout_rate is not None:
+            dropout = np.random.rand(*result.shape) > self.dropout_rate
+            result *= dropout
+
+        return np.squeeze(result, -1), (inputs, dropout)
+
+    def backward(self, grad: np.ndarray, cache: Cache) -> np.ndarray:
+        inputs, dropout = cache
+
+        grad = np.expand_dims(grad, -1)
+        if dropout is not None:
+            grad *= dropout
+
         inputs = np.expand_dims(inputs, -2)
 
-        weights_error = current_gradient @ inputs
-        self.weights_grad += (factor * weights_error).sum(0)
+        weights_error = grad @ inputs
+        self.weights_grad += weights_error.mean(0)
 
         if self.biases_enabled:
-            self.biases_grad += (factor * current_gradient).sum(0)
+            self.biases_grad += grad.mean(0)
 
-        return np.squeeze(self.weights.T @ current_gradient, -1)
+        return np.squeeze(self.weights.T @ grad, -1)
 
     def train(self, config: TrainingConfig):
         self.weights += self.weights_optimizer.optimize(self.weights_grad, config)

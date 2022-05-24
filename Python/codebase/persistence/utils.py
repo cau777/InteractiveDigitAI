@@ -18,7 +18,7 @@ class ClassificationPattern:
 
 
 CLASSIFICATION_PATTERNS: dict[str, ClassificationPattern] = {
-    "mnist": ClassificationPattern((28, 28), 10)
+    "mnist": ClassificationPattern((1, 28, 28), 10)
 }
 
 

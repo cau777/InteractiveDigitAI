@@ -1,6 +1,7 @@
 import numpy as np
 
 from codebase.nn.loss_functions import LossFunction
+from codebase.nn.utils import epsilon
 
 
 def softmax(x: np.ndarray):
@@ -13,7 +14,7 @@ class CrossEntropyLossFunction(LossFunction):
         batch = actual.shape[0]
         p = softmax(actual)
         labels = expected.argmax(-1)
-        return -np.log(p[range(batch), labels])
+        return -np.log(p[range(batch), labels] + epsilon)
 
     def calc_loss_gradient(self, expected: np.ndarray, actual: np.ndarray) -> np.ndarray:
         soft = softmax(actual)
