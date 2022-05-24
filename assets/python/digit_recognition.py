@@ -2,7 +2,7 @@ import numpy as np
 
 from codebase.integration import ClientInterfaceBase
 from codebase.nn import NeuralNetworkController
-from codebase.nn.layers import SequentialLayer, DenseLayer, ReshapeLayer, ConvolutionLayer, FlattenLayer, MaxPoolLayer
+from codebase.nn.layers import *
 from codebase.nn.layers.activation import ReluLayer
 from codebase.nn.loss_functions import CrossEntropyLossFunction
 from codebase.nn.lr_optimizers import AdamLrOptimizer
@@ -15,20 +15,23 @@ class ClientInterface(ClientInterfaceBase):
         self.train_data = None
         self.test_data = None
         self.loaded_hash: int | None = None
-        self.params = dict()
 
         self.network = NeuralNetworkController(SequentialLayer(
-            ReshapeLayer((1, 28, 28)),
-
             ConvolutionLayer.create_random(1, 32, 3, AdamLrOptimizer(0.01)),
             ReluLayer(),
             MaxPoolLayer(2, 2),
 
             FlattenLayer(),
 
-            DenseLayer.create_random(5408, 100, AdamLrOptimizer(), AdamLrOptimizer()),
+            DenseLayer.create_random(5408, 256, AdamLrOptimizer(), AdamLrOptimizer()),
             ReluLayer(),
-            DenseLayer.create_random(100, 10, AdamLrOptimizer(), AdamLrOptimizer())
+
+            DropoutLayer(0.1),
+
+            DenseLayer.create_random(256, 64, AdamLrOptimizer(), AdamLrOptimizer()),
+            ReluLayer(),
+
+            DenseLayer.create_random(64, 10, AdamLrOptimizer(), AdamLrOptimizer())
         ), CrossEntropyLossFunction())
 
     def train(self):
@@ -58,7 +61,7 @@ class ClientInterface(ClientInterfaceBase):
 
     def eval(self):
         # inputs: list[float]
-        result = self.network.classify_single(np.array(self.params["inputs"]).reshape([28, 28]))
+        result = self.network.classify_single(np.array(self.params["inputs"]).reshape((1, 28, 28)))
         print(result)
         return int(result)
 

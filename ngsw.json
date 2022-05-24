@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1652571398323,
+  "timestamp": 1653435740916,
   "index": "/AIPlayground/index.html",
   "assetGroups": [
     {
@@ -83,8 +83,8 @@
     "/AIPlayground/assets/icons/icon-96x96.png": "3914125a4b445bf111c5627875fc190f560daa41",
     "/AIPlayground/assets/mnist_test.dat": "46c621e129fd18d8edc234097873efe19a9ec6c5",
     "/AIPlayground/assets/mnist_train.dat": "77c0be0acf304806f9c06ed08573815bbdc4cd4c",
-    "/AIPlayground/assets/python/codebase-0.0.1-py3-none-any.whl": "2c99822be0ee7d7e5e520f8347c2280b599d8388",
-    "/AIPlayground/assets/python/digit_recognition.py": "60e52457a8603c1d8c787f2a930ad441ced08655",
+    "/AIPlayground/assets/python/codebase-0.0.1-py3-none-any.whl": "5f6871bb96bd879b6a9cb633c3aee4d98b16023c",
+    "/AIPlayground/assets/python/digit_recognition.py": "09fc494ba67f7e6ae4a4cf26dfd497db3c4c3eb7",
     "/AIPlayground/assets/python/test.py": "7d0ff4195c8713056e157c66a6a2ae7b70dc4e01",
     "/AIPlayground/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
     "/AIPlayground/index.html": "cd4817f173f13520404ba6906c1ac08a72b98757",
