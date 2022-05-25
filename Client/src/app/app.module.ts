@@ -18,6 +18,7 @@ import { DrawerComponent } from './drawer/drawer.component';
 import {MatIconModule} from "@angular/material/icon";
 import {MatListModule} from "@angular/material/list";
 import { DrawerAutosizeDirective } from './drawer-autosize.directive';
+import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
 
 @NgModule({
   declarations: [
@@ -45,6 +46,7 @@ import { DrawerAutosizeDirective } from './drawer-autosize.directive';
         MatSidenavModule,
         MatIconModule,
         MatListModule,
+        MatProgressSpinnerModule,
     ],
   providers: [],
   bootstrap: [AppComponent]

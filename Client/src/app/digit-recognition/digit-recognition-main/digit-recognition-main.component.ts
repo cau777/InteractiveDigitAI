@@ -30,6 +30,20 @@ export function isPassiveEnabled() {
 
 const passiveOptions: any = isPassiveEnabled() ? {passive: false} : false;
 
+function formatPredictions(predictions: number[]) {
+    predictions = predictions.map(Math.exp);
+    let sum = predictions.reduce((prev, val) => prev + val);
+    let labels = predictions.map((val, index) => [index, val / sum]);
+    labels.sort((a, b) => b[1] - a[1]);
+    
+    let possible = labels.filter(([, val]) => val > 0.15).map(([index,]) => index);
+    
+    if (possible.length === 0) return "I have no idea";
+    if (possible.length === 1) return "I'm certain this is a " + possible[0];
+    
+    return "I think this is a " + possible[0] + " but it could also be " + possible.slice(1).join(", ");
+}
+
 @Component({
     selector: 'app-digit-recognition-main',
     templateUrl: './digit-recognition-main.component.html',
@@ -43,7 +57,7 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
     private resizeCanvasElement!: ElementRef<HTMLCanvasElement>;
     
     public state: "idle" | "loading" | "predicting" = "idle";
-    public result?: number;
+    public result?: string;
     private prevPos?: Position;
     private touchStartedInCanvas = false;
     
@@ -115,7 +129,8 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
         console.log("Predicting");
         this.state = "predicting";
         let image = this.getResizedImage();
-        this.result = await this.pythonRunner.run("instance.eval()", {inputs: image});
+        let predictions = await this.pythonRunner.run("instance.eval()", {inputs: image});
+        this.result = formatPredictions(predictions);
         this.state = "idle";
     }
     

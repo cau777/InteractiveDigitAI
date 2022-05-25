@@ -1,6 +1,11 @@
 import {Injectable} from '@angular/core';
 import {firstValueFrom} from "rxjs";
-import {PyodideInitMessage, PyodideRunMessage, PyodideSelectMessage, PyodideWorkerMessage} from "./pyodide-worker-messages";
+import {
+    PyodideInitMessage,
+    PyodideRunMessage,
+    PyodideSelectMessage,
+    PyodideWorkerMessage
+} from "./pyodide-worker-messages";
 import {AiName} from "./ai-repos.service";
 import {ObjDict} from "./utils";
 import {AssetsHttpClientService} from "./assets-http-client.service";
@@ -8,12 +13,16 @@ import {AssetsHttpClientService} from "./assets-http-client.service";
 export type ScriptName = "test" | AiName;
 export type PythonRunCallback = (content: string, isError: boolean) => void;
 
+const loadingPrefix = "Loading Pyodide";
+
 // TODO: fix error when worker is busy
 
 @Injectable({
     providedIn: 'root'
 })
 export class PythonRunnerService {
+    public loadError?: string;
+    public loadStatus?: string = loadingPrefix;
     private readonly worker: Promise<Worker>;
     private loaded?: ScriptName;
     
@@ -40,29 +49,7 @@ export class PythonRunnerService {
             params: params
         };
         let worker = await this.worker;
-        
-        return await new Promise<any>((resolve, reject) => {
-            worker.postMessage(message);
-            
-            worker.addEventListener("error", e => {
-                console.error(e);
-                output?.(e.message, true);
-                reject(e.error);
-            });
-            
-            worker.addEventListener("message", e => {
-                let data: PyodideWorkerMessage = e.data;
-                
-                if (data.action === "output") {
-                    console.log(data.content); // TODO: remove
-                    output?.(data.content, data.isError);
-                } else if (data.action === "result") {
-                    resolve(data.content);
-                    worker.removeAllListeners?.();
-                }
-            });
-            
-        });
+        return await this.waitWorker(worker, message, output, e => output?.(e, true));
     }
     
     private async initWorker() {
@@ -72,7 +59,11 @@ export class PythonRunnerService {
         let archives = await this.loadLibsArchives("python/codebase-0.0.1-py3-none-any");
         let libs = ["numpy"];
         let init: PyodideInitMessage = {action: "init", libsArchives: archives, libs: libs};
-        await this.waitWorker(worker, init);
+        
+        await this.waitWorker(worker, init, content => this.loadStatus = loadingPrefix + ": " + content,
+            content => this.loadError = "ERROR: " + content);
+        
+        this.loadStatus = undefined;
         
         return worker;
     }
@@ -85,11 +76,26 @@ export class PythonRunnerService {
         return libs;
     }
     
-    private async waitWorker(worker: Worker, message: any) {
-        return new Promise((resolve, reject) => {
+    private async waitWorker(worker: Worker, message: any, outputCallback?: PythonRunCallback, errorCallback?: (content: string) => void) {
+        return new Promise<any>((resolve, reject) => {
             worker.postMessage(message);
-            worker.addEventListener("error", reject);
-            worker.addEventListener("message", e => resolve(e.data));
+            
+            worker.addEventListener("error", (e) => {
+                console.error(e);
+                errorCallback?.(e.message);
+                reject(e);
+            });
+            
+            worker.addEventListener("message", e => {
+                let data: PyodideWorkerMessage = e.data;
+                
+                if (data.action === "output") {
+                    outputCallback?.(data.content, data.isError);
+                } else if (data.action === "result") {
+                    resolve(data.content);
+                    worker.removeAllListeners?.();
+                }
+            });
         });
     }
     

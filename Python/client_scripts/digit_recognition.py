@@ -61,9 +61,9 @@ class ClientInterface(ClientInterfaceBase):
 
     def eval(self):
         # inputs: list[float]
-        result = self.network.classify_single(np.array(self.params["inputs"]).reshape((1, 28, 28)))
+        result = self.network.evaluate_single(np.array(self.params["inputs"]).reshape((1, 28, 28)))
         print(result)
-        return int(result)
+        return list(result)
 
     def benchmark(self):
         return self.network.benchmark((28, 28))

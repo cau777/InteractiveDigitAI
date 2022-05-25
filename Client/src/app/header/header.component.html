@@ -3,6 +3,14 @@
         <nav class="navbar">
             <div class="flex-center">
                 <a mat-button class="navbar-brand" routerLink="/" [routerLinkActive]="'active'">AI Playground</a>
+                <div class="d-flex flex-row" *ngIf="pythonRunner.loadStatus">
+                    <mat-spinner color="accent" [diameter]="24"></mat-spinner>
+                    {{pythonRunner.loadStatus}}
+                </div>
+
+                <div class="d-flex flex-row" *ngIf="pythonRunner.loadError">
+                    {{pythonRunner.loadError}}
+                </div>
             </div>
             <div class="ml-auto">
                 <a mat-button href="https://www.github.com/cau777/AIPlayground">

@@ -16,7 +16,8 @@ export class PyodideWorkerLogic {
     private async prepareEnv(): Promise<IPyodide> {
         let pyodide = await loadPyodide();
         
-        await pyodide.loadPackage(this.libs);
+        await pyodide.loadPackage(this.libs, o => PyodideWorkerLogic.stdCallback(o.trim(), false),
+            o => PyodideWorkerLogic.stdCallback(o.trim(), true));
         
         for (const lib of this.libsArchives)
             await pyodide.unpackArchive(lib, "wheel");
@@ -37,7 +38,7 @@ export class PyodideWorkerLogic {
             namespace.update(pyParams);
             pyParams.destroy();
             
-            await pyodide.loadPackagesFromImports(code); // tODO: redirect output
+            await pyodide.loadPackagesFromImports(code);
             pyodide.runPython(code, {
                 globals: namespace
             });

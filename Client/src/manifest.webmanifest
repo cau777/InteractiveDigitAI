@@ -1,9 +1,11 @@
 {
-  "name": "AIPlayground",
-  "short_name": "AIPlayground",
-  "theme_color": "#1976d2",
-  "background_color": "#fafafa",
+  "name": "AI Playground",
+  "short_name": "AI Playground",
+  "theme_color": "#8e24aa",
+  "background_color": "#303030",
   "display": "standalone",
+  "orientation": "portrait",
+  "description": "A collection of different projects involving AI",
   "scope": "./",
   "start_url": "./",
   "icons": [

@@ -1,7 +1,7 @@
 <h2>Handwritten Digit Recognition</h2>
 
 <div class="canvas-container">
-    <p>Draw a single digit below</p>
+    <p>Instructions: draw a single digit in the center of the canvas below</p>
     <div class="d-flex">
         <canvas width="112" height="112" #canvasElement></canvas>
         <button mat-icon-button (click)="clear()">
@@ -17,4 +17,4 @@
     <ng-container *ngSwitchCase="'predicting'">Predicting</ng-container>
 </button>
 
-<div *ngIf="result !== undefined" class="ms-1">I believe this is a {{result}}</div>
+<div *ngIf="result !== undefined" class="ms-1">{{result}}</div>
