@@ -11,6 +11,7 @@ import { LogsViewComponent } from './logs-view/logs-view.component';
 import {MatExpansionModule} from "@angular/material/expansion";
 import { LogDetailsComponent } from './log-details/log-details.component';
 import { LogLinesDirective } from './log-lines.directive';
+import {TranslateModule} from "@ngx-translate/core";
 
 
 @NgModule({
@@ -27,7 +28,8 @@ import { LogLinesDirective } from './log-lines.directive';
         MatButtonModule,
         FormsModule,
         MatInputModule,
-        MatExpansionModule
+        MatExpansionModule,
+        TranslateModule
     ]
 })
 export class TrainModule {}

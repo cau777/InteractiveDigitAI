@@ -1,7 +1,7 @@
-<h2>Handwritten Digit Recognition</h2>
+<h2>{{"DigitRecognition.Title"|translate}}</h2>
 
 <div class="canvas-container">
-    <p>Instructions: draw a single digit in the center of the canvas below</p>
+    <p>{{"DigitRecognition.Instructions"|translate}}</p>
     <div class="d-flex">
         <canvas width="112" height="112" #canvasElement></canvas>
         <button mat-icon-button (click)="clear()">
@@ -12,9 +12,9 @@
 </div>
 
 <button mat-raised-button color="primary" (click)="predict()" [disabled]="state !== 'idle'" [ngSwitch]="state">
-    <ng-container *ngSwitchCase="'idle'">Predict</ng-container>
-    <ng-container *ngSwitchCase="'loading'">Loading</ng-container>
-    <ng-container *ngSwitchCase="'predicting'">Predicting</ng-container>
+    <ng-container *ngSwitchCase="'idle'">{{"Common.Predict"|translate}}</ng-container>
+    <ng-container *ngSwitchCase="'loading'">{{"Common.Loading"|translate}}</ng-container>
+    <ng-container *ngSwitchCase="'predicting'">{{"Common.Predicting"|translate}}</ng-container>
 </button>
 
 <div *ngIf="result !== undefined" class="ms-1">{{result}}</div>

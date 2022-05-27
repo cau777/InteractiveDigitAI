@@ -4,6 +4,8 @@ import {DrawerService} from "../../drawer.service";
 import {PythonRunnerService} from "../../python-runner.service";
 import {AiReposService} from "../../ai-repos.service";
 import {DOCUMENT} from "@angular/common";
+import {TranslateService} from "@ngx-translate/core";
+import {firstValueFrom} from "rxjs";
 
 /**
  * @link https://stackoverflow.com/questions/50393418/what-happens-if-i-dont-test-passive-event-listeners-support
@@ -30,20 +32,6 @@ export function isPassiveEnabled() {
 
 const passiveOptions: any = isPassiveEnabled() ? {passive: false} : false;
 
-function formatPredictions(predictions: number[]) {
-    predictions = predictions.map(Math.exp);
-    let sum = predictions.reduce((prev, val) => prev + val);
-    let labels = predictions.map((val, index) => [index, val / sum]);
-    labels.sort((a, b) => b[1] - a[1]);
-    
-    let possible = labels.filter(([, val]) => val > 0.15).map(([index,]) => index);
-    
-    if (possible.length === 0) return "I have no idea";
-    if (possible.length === 1) return "I'm certain this is a " + possible[0];
-    
-    return "I think this is a " + possible[0] + " but it could also be " + possible.slice(1).join(", ");
-}
-
 @Component({
     selector: 'app-digit-recognition-main',
     templateUrl: './digit-recognition-main.component.html',
@@ -65,6 +53,7 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
                        private drawerService: DrawerService,
                        private pythonRunner: PythonRunnerService,
                        private aiReposService: AiReposService,
+                       private translateService: TranslateService,
                        @Inject(DOCUMENT) private document: Document) {
         this.preventMobileScrolling = this.preventMobileScrolling.bind(this);
         window.addEventListener("touchmove", this.preventMobileScrolling, passiveOptions);
@@ -132,7 +121,7 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
             this.state = "predicting";
             let image = this.getResizedImage();
             let predictions = await this.pythonRunner.run("instance.eval()", {inputs: image});
-            this.result = formatPredictions(predictions);
+            this.result = await firstValueFrom(this.formatPredictions(predictions));
             this.state = "idle";
         } catch (e) {
             alert(e);
@@ -158,5 +147,21 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
         if (this.touchStartedInCanvas) {
             e.preventDefault();
         }
+    }
+    
+    private formatPredictions(predictions: number[]) {
+        predictions = predictions.map(Math.exp);
+        let sum = predictions.reduce((prev, val) => prev + val);
+        let labels = predictions.map((val, index) => [index, val / sum]);
+        labels.sort((a, b) => b[1] - a[1]);
+        
+        let possible = labels.filter(([, val]) => val > 0.15).map(([index,]) => index);
+        
+        if (possible.length === 0) return this.translateService.get("DigitRecognition.Result0");
+        if (possible.length === 1)
+            return this.translateService.get("DigitRecognition.Result1", {value: possible[0]});
+        
+        return this.translateService.get("DigitRecognition.Result2", 
+            {value: possible[0], rest: possible.slice(1).join(", ")});
     }
 }

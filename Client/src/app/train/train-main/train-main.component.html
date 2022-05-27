@@ -1,10 +1,10 @@
-<h2>Train</h2>
+<h2>{{"Train.Title"|translate}}</h2>
 
 <div class="d-flex flex-row flex-wrap">
     <div>
         <form (ngSubmit)="run()">
             <mat-form-field appearance="outline">
-                <mat-label>Model</mat-label>
+                <mat-label>{{"Common.Model"|translate}}</mat-label>
                 <mat-select [(ngModel)]="model.scriptName" name="scriptName" required>
                     <mat-option *ngFor="let val of trainOptions" [value]="val">{{val}}</mat-option>
                 </mat-select>
@@ -13,10 +13,10 @@
             <br/>
 
             <mat-form-field appearance="outline">
-                <mat-label>Action</mat-label>
+                <mat-label>{{"Common.Action"|translate}}</mat-label>
                 <mat-select [(ngModel)]="model.action" name="action" required>
-                    <mat-option [value]="'train'">Train</mat-option>
-                    <mat-option [value]="'test'">Test</mat-option>
+                    <mat-option [value]="'train'">{{"Common.Train"|translate}}</mat-option>
+                    <mat-option [value]="'test'">{{"Common.Test"|translate}}</mat-option>
                 </mat-select>
             </mat-form-field>
 
@@ -25,7 +25,7 @@
             <ng-container [ngSwitch]="model.action">
                 <ng-container *ngSwitchCase="'train'">
                     <mat-form-field appearance="outline">
-                        <mat-label>Epochs</mat-label>
+                        <mat-label>{{"Common.Epochs"|translate}}</mat-label>
                         <input matInput type="number" [(ngModel)]="model.epochs" name="epochs"/>
                     </mat-form-field>
                 </ng-container>
@@ -33,7 +33,7 @@
 
             <br/>
 
-            <button mat-raised-button color="primary" type="submit" [disabled]="busy">Run</button>
+            <button mat-raised-button color="primary" type="submit" [disabled]="busy">{{"Common.Run"|translate}}</button>
         </form>
     </div>
 
@@ -42,7 +42,7 @@
         <div *ngIf="result.length" class="mb-2">
             <mat-expansion-panel expanded>
                 <mat-expansion-panel-header>
-                    <mat-panel-title>Result</mat-panel-title>
+                    <mat-panel-title>{{"Common.Result"|translate}}</mat-panel-title>
                 </mat-expansion-panel-header>
 
                 <div *ngFor="let line of result">
@@ -50,7 +50,7 @@
                 </div>
             </mat-expansion-panel>
         </div>
-        <h3 *ngIf="entries.length">Logs</h3>
+        <h3 *ngIf="entries.length">{{"Common.Logs"|translate}}</h3>
         <app-logs-view [entries]="entries"></app-logs-view>
     </div>
 </div>

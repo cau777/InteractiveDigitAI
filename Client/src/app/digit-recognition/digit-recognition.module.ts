@@ -5,6 +5,7 @@ import { DigitRecognitionRoutingModule } from './digit-recognition-routing.modul
 import { DigitRecognitionMainComponent } from './digit-recognition-main/digit-recognition-main.component';
 import {MatButtonModule} from "@angular/material/button";
 import {MatIconModule} from "@angular/material/icon";
+import {TranslateModule} from "@ngx-translate/core";
 
 
 @NgModule({
@@ -15,7 +16,8 @@ import {MatIconModule} from "@angular/material/icon";
         CommonModule,
         DigitRecognitionRoutingModule,
         MatButtonModule,
-        MatIconModule
+        MatIconModule,
+        TranslateModule
     ]
 })
 export class DigitRecognitionModule { }

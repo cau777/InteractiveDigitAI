@@ -12,21 +12,21 @@
                [routerLinkActiveOptions]="{exact: true}">
                 <mat-list-item>
                     <mat-icon>home</mat-icon>
-                    <p matLine *ngIf="toggled">Home</p>
+                    <p matLine *ngIf="toggled">{{"Drawer.Home" | translate}}</p>
                 </mat-list-item>
             </a>
 
             <a class="simple-link" routerLink="/train" routerLinkActive="selected-background">
                 <mat-list-item>
                     <mat-icon>import_export</mat-icon>
-                    <p matLine *ngIf="toggled">Train</p>
+                    <p matLine *ngIf="toggled">{{"Drawer.Train" | translate}}</p>
                 </mat-list-item>
             </a>
 
             <a class="simple-link" routerLink="/digit_recognition" routerLinkActive="selected-background">
                 <mat-list-item>
                     <mat-icon>filter_9</mat-icon>
-                    <p matLine *ngIf="toggled">Digit Recognition</p>
+                    <p matLine *ngIf="toggled">{{"Drawer.DigitRecognition" | translate}}</p>
                 </mat-list-item>
             </a>
         </mat-nav-list>
