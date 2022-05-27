@@ -1,6 +1,8 @@
 import numpy as np
 from math import sqrt
 from typing import Iterator
+
+from codebase.general_utils import take_iter
 from codebase.nn import BatchConfig
 from codebase.nn.layers import NNLayer
 from codebase.nn.lr_optimizers import LrOptimizer
@@ -136,4 +138,4 @@ class ConvolutionLayer(NNLayer):
         return list(self.kernels.flat)
 
     def set_trainable_params(self, params_iterator: Iterator[float]) -> None:
-        self.kernels = np.array([next(params_iterator) for _ in range(self.kernels.size)]).reshape(self.kernels.shape)
+        self.kernels = np.fromiter(take_iter(params_iterator, self.kernels.size), dtype="float32").reshape(self.kernels.shape)

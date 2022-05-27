@@ -31,7 +31,8 @@ export class PyodideWorkerLogic {
         
         try {
             let pyodide = await this.pyodidePromise;
-            if (this.pyconsole !== undefined) await this.close();
+            if (this.pyconsole !== undefined)
+                this.pyconsole.destroy();
             
             namespace = pyodide.globals.get("dict")();
             let pyParams = pyodide.toPy(params);
@@ -86,13 +87,6 @@ export class PyodideWorkerLogic {
     private async clearParams() {
         let instance = this.pyconsole.globals.get("instance");
         instance.params.clear();
-    }
-    
-    public async close() {
-        if (this.pyconsole === undefined)
-            throw new Error("No script selected");
-        
-        this.pyconsole.destroy();
     }
     
     private static stdCallback(content: string, isError: boolean) {

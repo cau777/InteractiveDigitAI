@@ -2,6 +2,7 @@ from typing import Iterator
 
 import numpy as np
 
+from codebase.general_utils import take_iter
 from codebase.nn import BatchConfig
 from codebase.nn.layers import NNLayer
 from codebase.nn.lr_optimizers import LrOptimizer
@@ -68,5 +69,5 @@ class DenseLayer(NNLayer):
         return list(self.weights.flat) + list(self.biases.flat)
 
     def set_trainable_params(self, params_iterator: Iterator[float]) -> None:
-        self.weights = np.array([next(params_iterator) for _ in range(self.weights.size)]).reshape(self.weights.shape)
-        self.biases = np.array([next(params_iterator) for _ in range(self.biases.size)]).reshape(self.biases.shape)
+        self.weights = np.fromiter(take_iter(params_iterator, self.weights.size), dtype="float32").reshape(self.weights.shape)
+        self.biases = np.fromiter(take_iter(params_iterator, self.biases.size), dtype="float32").reshape(self.biases.shape)

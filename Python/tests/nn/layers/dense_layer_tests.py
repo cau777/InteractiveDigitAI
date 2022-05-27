@@ -31,6 +31,12 @@ class MyTestCase(unittest.TestCase):
         final_loss = loss_func.calc_loss(expected, final)
         self.assertLess(final_loss.mean(), 0.01)
 
+    def test_save_load_params(self):
+        layer = DenseLayer.create_random(10, 20, None, None)
+        params = list(map(lambda x: -x, layer.get_trainable_params()))
+        print(len(params), params)
+        layer.set_trainable_params(iter(params))
+
 
 if __name__ == '__main__':
     unittest.main()

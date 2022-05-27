@@ -33,7 +33,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_eval_empty(self):
         controller = NeuralNetworkController(SequentialLayer(), MseLossFunction())
-        inputs = np.random.rand(10, 10)
+        inputs = np.random.rand(10, 10).astype("float32")
         result = controller.evaluate_single(inputs)
         self.assertTrue(np.array_equal(inputs, result))
 

@@ -21,7 +21,7 @@ class NeuralNetworkController:
         return self.evaluate_batch(np.stack([inputs]))[0]
 
     def evaluate_batch(self, inputs: np.ndarray):
-        return self.main_layer.forward(inputs, BatchConfig(False, self.version))[0]
+        return self.main_layer.forward(inputs.astype("float32"), BatchConfig(False, self.version))[0]
 
     def classify_single(self, inputs: np.ndarray) -> int:
         return self.classify_batch(np.stack([inputs]))[0]

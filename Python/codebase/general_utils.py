@@ -1,4 +1,4 @@
-from typing import TypeVar, Sequence
+from typing import TypeVar, Sequence, Iterator
 
 T = TypeVar("T")
 
@@ -28,3 +28,7 @@ def product(*elements: Sequence[int]):
     for e in elements:
         result *= e
     return result
+
+
+def take_iter(iterator: Iterator[T], count: int):
+    return map(lambda index, val: val, range(count), iterator)

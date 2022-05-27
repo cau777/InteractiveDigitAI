@@ -61,7 +61,7 @@ class ClientInterface(ClientInterfaceBase):
 
     def eval(self):
         # inputs: list[float]
-        result = self.network.evaluate_single(np.array(self.params["inputs"]).reshape((1, 28, 28)))
+        result = self.network.evaluate_single(np.array(self.params["inputs"], dtype="float32").reshape((1, 28, 28)))
         print(result)
         return list(result)
 

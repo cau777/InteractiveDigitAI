@@ -20,18 +20,18 @@ def get_image_example():
             [0, 1, 3, 1, 7, 8],
             [4, 2, 1, 6, 2, 8],
             [2, 4, 5, 2, 3, 9],
-        ]]]),
+        ]]], dtype="float32"),
         np.array([[
             [1, 0, -1],
             [1, 0, -1],
             [1, 0, -1],
-        ]]),
+        ]], dtype="float32"),
         np.array([[[
             [-5, -4, 0, 8],
             [-10, -2, 2, 3],
             [0, -2, -4, -7],
             [-3, -2, -3, -16],
-        ]]])
+        ]]], dtype="float32")
     )
 
 
@@ -139,6 +139,11 @@ class ConvolutionLayerTests(unittest.TestCase):
         final, _ = layer.forward(image, BatchConfig(False, 100))
         final_loss = loss_func.calc_loss(expected, final)
         self.assertLess(final_loss.mean(), 0.3)
+
+    def test_save_load_params(self):
+        layer = ConvolutionLayer.create_random(7, 4, 3, AdamLrOptimizer(0.05))
+        params = list(map(lambda x: -x, layer.get_trainable_params()))
+        layer.set_trainable_params(iter(params))
 
 
 if __name__ == '__main__':

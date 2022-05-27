@@ -24,7 +24,7 @@ CLASSIFICATION_PATTERNS: dict[str, ClassificationPattern] = {
 
 def load_classification(data: bytes, pattern: ClassificationPattern):
     parts = pattern.struct.unpack(data)
-    return ClassificationExample(np.array(parts[:-1]).reshape(pattern.inputs_shape), parts[-1], pattern.classes)
+    return ClassificationExample(np.array(parts[:-1], dtype="float32").reshape(pattern.inputs_shape), parts[-1], pattern.classes)
 
 
 def save_classification(obj: ClassificationExample, pattern: ClassificationPattern):

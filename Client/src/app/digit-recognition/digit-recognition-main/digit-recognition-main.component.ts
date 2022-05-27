@@ -123,15 +123,20 @@ export class DigitRecognitionMainComponent implements AfterViewInit, OnDestroy {
     public async predict() {
         console.log("Loading");
         this.state = "loading";
-        await this.pythonRunner.loadScript("digit_recognition");
-        await this.aiReposService.loadModel("digit_recognition", this.pythonRunner);
         
-        console.log("Predicting");
-        this.state = "predicting";
-        let image = this.getResizedImage();
-        let predictions = await this.pythonRunner.run("instance.eval()", {inputs: image});
-        this.result = formatPredictions(predictions);
-        this.state = "idle";
+        try {
+            await this.pythonRunner.loadScript("digit_recognition");
+            await this.aiReposService.loadModel("digit_recognition", this.pythonRunner);
+            
+            console.log("Predicting");
+            this.state = "predicting";
+            let image = this.getResizedImage();
+            let predictions = await this.pythonRunner.run("instance.eval()", {inputs: image});
+            this.result = formatPredictions(predictions);
+            this.state = "idle";
+        } catch (e) {
+            alert(e);
+        }
     }
     
     private getResizedImage() {
