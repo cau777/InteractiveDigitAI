@@ -13,7 +13,7 @@ def pad4d(array: np.ndarray, padding: int):
     shape = array.shape
     height = shape[-2]
     width = shape[-1]
-    result = np.zeros((*shape[:-2], height + 2 * padding, width + 2 * padding))
+    result = np.zeros((*shape[:-2], height + 2 * padding, width + 2 * padding), dtype="float32")
     result[:, :, padding:height + padding, padding:width + padding] = array
     return result
 
@@ -25,7 +25,7 @@ def remove_padding4d(array: np.ndarray, padding: int):
 
 def extract_fragments4d(array: np.ndarray, size: int, stride: int):
     batch, channels, new_height, new_width = get_dims_after_filter(array.shape, size, stride)
-    result = np.zeros((new_height, new_width, batch, channels, size, size))
+    result = np.zeros((new_height, new_width, batch, channels, size, size), dtype="float32")
     for h in range(new_height):
         for w in range(new_width):
             h_offset = h * stride
@@ -94,7 +94,7 @@ class ConvolutionLayer(NNLayer):
         u_kernels = np.expand_dims(np.moveaxis(self.kernels, 0, 3), -2)
 
         batch, channels, new_height, new_width = get_dims_after_filter(padded.shape, self.kernel_size, self.stride)
-        padded_input_grad = np.zeros(padded.shape)
+        padded_input_grad = np.zeros(padded.shape, dtype="float32")
         for h in range(new_height):
             for w in range(new_width):
                 h_offset = h * self.stride
@@ -111,7 +111,7 @@ class ConvolutionLayer(NNLayer):
 
     def apply_gradient(self, inputs: np.ndarray, gradient: np.ndarray):
         factor = 1
-        kernels_grad = np.zeros(self.kernels.shape)
+        kernels_grad = np.zeros(self.kernels.shape, dtype="float32")
         shape = inputs.shape
         mean_inputs: np.ndarray = inputs.mean(0)
         mean_gradient: np.ndarray = gradient.mean(0)

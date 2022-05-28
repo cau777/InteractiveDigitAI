@@ -12,7 +12,7 @@ class MaxPoolLayer(NNLayer):
 
     def forward(self, inputs: np.ndarray, config: BatchConfig) -> tuple[np.ndarray, np.ndarray]:
         batch_size, channels, new_height, new_width = get_dims_after_filter(inputs.shape, self.size, self.stride)
-        result = np.zeros((batch_size, channels, new_height, new_width))
+        result = np.zeros((batch_size, channels, new_height, new_width), dtype="float32")
 
         for h in range(new_height):
             for w in range(new_width):

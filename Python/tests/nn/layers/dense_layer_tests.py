@@ -14,8 +14,8 @@ class MyTestCase(unittest.TestCase):
         init_random()
 
     def test_training(self):
-        inputs = np.random.rand(1, 10)
-        expected = np.random.rand(1, 10)
+        inputs = np.random.rand(1, 10).astype("float32")
+        expected = np.random.rand(1, 10).astype("float32")
 
         loss_func = MseLossFunction()
         layer = DenseLayer.create_random(10, 10, AdamLrOptimizer(), AdamLrOptimizer())
@@ -24,18 +24,14 @@ class MyTestCase(unittest.TestCase):
             config = BatchConfig(True, e + 1)
             outputs, cache = layer.forward(inputs, config)
             loss_grad = loss_func.calc_loss_gradient(expected, outputs)
-            layer.backward(loss_grad, cache, config)
+            self.assertEqual(outputs.dtype, "float32")
+            grad = layer.backward(loss_grad, cache, config)
+            self.assertEqual(grad.dtype, "float32")
             layer.train(config)
 
         final, _ = layer.forward(inputs, BatchConfig(False, 200))
         final_loss = loss_func.calc_loss(expected, final)
         self.assertLess(final_loss.mean(), 0.01)
-
-    def test_save_load_params(self):
-        layer = DenseLayer.create_random(10, 20, None, None)
-        params = list(map(lambda x: -x, layer.get_trainable_params()))
-        print(len(params), params)
-        layer.set_trainable_params(iter(params))
 
 
 if __name__ == '__main__':

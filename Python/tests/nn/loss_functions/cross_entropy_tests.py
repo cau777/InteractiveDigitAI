@@ -38,7 +38,7 @@ class MyTestCase(unittest.TestCase):
 
     def test_training(self):
         inputs = np.random.rand(1, 100)
-        expected = np.zeros((1, 10))
+        expected = np.zeros((1, 10), dtype="float32")
         expected[0] = 1
 
         loss_func = CrossEntropyLossFunction()

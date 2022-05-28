@@ -15,9 +15,9 @@ class AdamLrOptimizer(LrOptimizer):
 
     def optimize(self, gradients: np.ndarray, config: BatchConfig) -> np.ndarray:
         if self.moment1 is None:
-            self.moment1 = np.zeros(gradients.shape)
+            self.moment1 = np.zeros(gradients.shape, dtype="float32")
         if self.moment2 is None:
-            self.moment2 = np.zeros(gradients.shape)
+            self.moment2 = np.zeros(gradients.shape, dtype="float32")
 
         self.moment1 = lerp_arrays(gradients, self.moment1, self.decay1)
         self.moment2 = lerp_arrays(np.square(gradients), self.moment2, self.decay2)

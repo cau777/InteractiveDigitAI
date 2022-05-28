@@ -30,8 +30,8 @@ class DenseLayer(NNLayer):
             raise ValueError("out_values can't be less than 1")
 
         std_dev = out_values ** -0.5
-        weights = np.random.normal(0, std_dev, (out_values, in_values))
-        biases = np.zeros((out_values, 1))
+        weights = np.random.normal(0, std_dev, (out_values, in_values)).astype("float32")
+        biases = np.zeros((out_values, 1), dtype="float32")
         return DenseLayer(weights, biases, biases_enabled, weights_optimizer, biases_optimizer)
 
     def forward(self, inputs: np.ndarray, config: BatchConfig) -> tuple[np.ndarray, np.ndarray]:

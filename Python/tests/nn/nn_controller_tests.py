@@ -3,9 +3,9 @@ import unittest
 
 import numpy as np
 
-from codebase.nn import NeuralNetworkController, TrainingExample
+from codebase.nn import NeuralNetworkController, TrainingExample, BatchConfig
 from codebase.nn.layers import *
-from codebase.nn.layers.activation import TanhLayer, ReluLayer
+from codebase.nn.layers.activation import *
 from codebase.nn.loss_functions import MseLossFunction, CrossEntropyLossFunction
 from codebase.nn.lr_optimizers import AdamLrOptimizer
 from codebase.nn.utils import init_random
@@ -24,6 +24,24 @@ def conv_controller():
         DenseLayer.create_random(5408, 100, AdamLrOptimizer(), AdamLrOptimizer()),
         ReluLayer(),
         DenseLayer.create_random(100, 10, AdamLrOptimizer(), AdamLrOptimizer())
+    ), CrossEntropyLossFunction())
+
+
+def all_layers_controller():
+    return NeuralNetworkController(SequentialLayer(
+        ReshapeLayer((1, 28, 28)),
+
+        ConvolutionLayer.create_random(1, 32, 3, AdamLrOptimizer(0.01)),
+        ReluLayer(),
+        MaxPoolLayer(2, 2),
+
+        DropoutLayer(0.1),
+
+        FlattenLayer(),
+        SigmoidLayer(),
+
+        DenseLayer.create_random(5408, 100, AdamLrOptimizer(), AdamLrOptimizer()),
+        TanhLayer(),
     ), CrossEntropyLossFunction())
 
 
@@ -78,7 +96,14 @@ class MyTestCase(unittest.TestCase):
         network.main_layer.set_trainable_params(iter(network.main_layer.get_trainable_params()))
 
         after = network.test(data)
-        self.assertEqual(before["avg_loss"], after["avg_loss"])
+        self.assertAlmostEqual(before["avg_loss"], after["avg_loss"], 6)
+
+    def test_dtypes(self):
+        controller = conv_controller()
+        config = BatchConfig(True)
+        forward, cache = controller.main_layer.forward(np.random.rand(1, 28, 28).astype("float32"), config)
+        self.assertEqual(forward.dtype, "float32")
+        self.assertEqual(controller.main_layer.backward(-forward, cache, config).dtype, "float32")
 
     @unittest.skip
     def test_classification_conv(self):

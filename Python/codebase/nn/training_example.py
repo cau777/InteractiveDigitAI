@@ -4,8 +4,8 @@ from codebase.nn.utils import epsilon
 
 class TrainingExample:
     def __init__(self, inputs: np.ndarray, label: np.ndarray):
-        self.inputs = inputs
-        self.label = label
+        self.inputs = inputs.astype("float32")
+        self.label = label.astype("float32")
 
 
 class ClassificationExample(TrainingExample):

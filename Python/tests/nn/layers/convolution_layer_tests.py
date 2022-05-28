@@ -44,7 +44,7 @@ class ConvolutionLayerTests(unittest.TestCase):
         profiler.print_stats()
 
     def test_padding0(self):
-        array = np.random.rand(1, 1, 8, 8)
+        array = np.random.rand(1, 1, 8, 8).astype("float32")
         output = convolution_layer.pad4d(array, 0)
         self.assertTrue(np.array_equal(array, output))
 
@@ -54,7 +54,7 @@ class ConvolutionLayerTests(unittest.TestCase):
         for p in range(1, 7):
             with self.subTest(i=p):
                 output = convolution_layer.pad4d(array, p)
-                expected = np.zeros((1, 1, 8 + 2 * p, 8 + 2 * p))
+                expected = np.zeros((1, 1, 8 + 2 * p, 8 + 2 * p), dtype="float32")
 
                 for h in range(p, 8 + p):
                     for w in range(p, 8 + p):

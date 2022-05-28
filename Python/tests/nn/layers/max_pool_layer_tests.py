@@ -10,7 +10,7 @@ from codebase.nn.utils import get_dims_after_filter
 
 def manual_pooling(array: np.ndarray, size: int, stride: int):
     batch_size, channels, new_height, new_width = get_dims_after_filter(array.shape, size, stride)
-    result = np.zeros((batch_size, channels, new_height, new_width))
+    result = np.zeros((batch_size, channels, new_height, new_width), dtype="float32")
 
     for b in range(batch_size):
         for c in range(channels):
@@ -57,7 +57,7 @@ class MyTestCase(unittest.TestCase):
         init_random()
 
     def test_feed_forward0(self):
-        array = np.random.rand(1, 1, 8, 8)
+        array = np.random.rand(1, 1, 8, 8).astype("float32")
         layer = MaxPoolLayer(1, 1)
         output, _ = layer.forward(array, BatchConfig(False))
         self.assertEqual(array.shape, output.shape)
