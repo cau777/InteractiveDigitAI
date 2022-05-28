@@ -6,7 +6,7 @@ from codebase.general_utils import take_iter
 from codebase.nn import BatchConfig
 from codebase.nn.layers import NNLayer
 from codebase.nn.lr_optimizers import LrOptimizer
-from codebase.nn.utils import get_dims_after_filter
+from codebase.nn.utils import get_dims_after_filter, to_flat_list
 
 
 def pad4d(array: np.ndarray, padding: int):
@@ -135,7 +135,7 @@ class ConvolutionLayer(NNLayer):
         return self.kernels.size
 
     def get_trainable_params(self) -> list[float]:
-        return list(self.kernels.flat)
+        return to_flat_list(self.kernels)
 
     def set_trainable_params(self, params_iterator: Iterator[float]) -> None:
         self.kernels = np.fromiter(take_iter(params_iterator, self.kernels.size), dtype="float32").reshape(self.kernels.shape)

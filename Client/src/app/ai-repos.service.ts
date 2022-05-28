@@ -59,6 +59,7 @@ export class AiReposService {
         console.log(serverVersion, cachedVersion)
         
         if (serverVersion?.hash === undefined) {
+            console.log("No hash in server")
             let firstVersion: AiModel = await pythonRunner.run("instance.save()");
             await this.saveFirstVersion(name, firstVersion);
             serverVersion = await this.loadInfo(name);
@@ -71,7 +72,7 @@ export class AiReposService {
                 version: serverVersion.version,
                 hash: serverVersion.hash,
                 params: modelData!.params
-            });
+            }, console.log);
         } else {
             console.log("Skipped loading model");
         }

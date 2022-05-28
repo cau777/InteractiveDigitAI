@@ -6,6 +6,7 @@ from codebase.general_utils import take_iter
 from codebase.nn import BatchConfig
 from codebase.nn.layers import NNLayer
 from codebase.nn.lr_optimizers import LrOptimizer
+from codebase.nn.utils import to_flat_list
 
 
 class DenseLayer(NNLayer):
@@ -66,7 +67,7 @@ class DenseLayer(NNLayer):
         return self.weights.size + self.biases.size
 
     def get_trainable_params(self) -> list[float]:
-        return list(self.weights.flat) + list(self.biases.flat)
+        return to_flat_list(self.weights) + to_flat_list(self.biases)
 
     def set_trainable_params(self, params_iterator: Iterator[float]) -> None:
         self.weights = np.fromiter(take_iter(params_iterator, self.weights.size), dtype="float32").reshape(self.weights.shape)
