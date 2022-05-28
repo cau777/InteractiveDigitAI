@@ -1,0 +1,35 @@
+{
+	"Common": {
+		"Model": "Modelo",
+		"Action": "Ação",
+		"Train": "Treinar",
+		"Test": "Testar",
+		"Epochs": "Épocas",
+		"Run": "Executar",
+		"Result": "Resultado",
+		"Logs": "Logs",
+		"Predict": "Prever",
+		"Predicting":"Prevendo",
+		"Loading": "Carregando"
+	},
+	
+    "Home": {
+        "Welcome": "Bem vindo(a)!",
+        "Description": "Esta é uma coleção de diferentes projetos envolvendo IA que estou criando no meu tempo livre para aprender sobre o tópico.\nEste site é feito com Angular (SCSS e Angular Material para estilização).\nA IA é feita com Python e numpy. Eu decidi não usar frameworks como Tensorflow, mas implementá-la do zero para aprender a matemática por trás de Deep Learning.\nO processo de treinamento acontece completamente no seu navegador, usando Pyodide para executar scripts em Python. Qualquer um pode contribuir para melhorar os modelos de IA usando a página 'Treinar'.\nNo futuro, pretendo adicionar outros projetos envolvendo áudio, texto, and jogos como Xadrez.\nUse o menu lateral sidebar para explorar os projetos. Aproveite!"
+    },
+	"Drawer": {
+		"Home": "Página inicial",
+		"Train": "Trainar",
+		"DigitRecognition": "Rec. de dígitos"
+	},
+	"DigitRecognition": {
+		"Title": "Reconhecimento de dígitos manuscritos",
+		"Instructions": "Instruções: desenhe um único dígito no centro do canvas abaixo",
+		"Result0": "Não tenho ideia",
+		"Result1": "Tenho certeza que isso é um {{value}}",
+		"Result2": "Acho que isso é um {{value}} mas também poderia ser {{rest}}"
+	},
+	"Train": {
+		"Title": "Treinar"
+	}
+}
