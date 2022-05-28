@@ -5,7 +5,6 @@ import {zip} from "./utils";
 import {PythonRunnerService} from "./python-runner.service";
 import {AngularFireStorage} from "@angular/fire/compat/storage";
 import {HttpClient} from "@angular/common/http";
-import {Buffer} from "buffer";
 
 export type AiName = "digit_recognition";
 
@@ -26,11 +25,11 @@ type ModelCache = {
 };
 
 function floatsToBuffer(floats: number[]) {
-    return Buffer.from(new Uint8Array(new Float32Array(floats).buffer).buffer);
+    return new Uint8Array(new Float32Array(floats).buffer);
 }
 
-function bufferToFloats(buffer: Buffer) {
-    return Array.from(new Float32Array(new Uint8Array(buffer).buffer));
+function bufferToFloats(buffer: ArrayBuffer) {
+    return Array.from(new Float32Array(buffer));
 }
 
 async function calcHash(buffer: Uint8Array) {
@@ -39,14 +38,7 @@ async function calcHash(buffer: Uint8Array) {
 }
 
 async function blobToBuffer(blob: Blob) {
-    const fileReader = new FileReader();
-    return new Promise<Buffer>((resolve, reject) => {
-        fileReader.onloadend = (ev) => {
-            resolve(ev.target?.result as Buffer);
-        };
-        fileReader.onerror = reject;
-        fileReader.readAsArrayBuffer(blob);
-    });
+    return blob.arrayBuffer();
 }
 
 @Injectable({
@@ -127,7 +119,7 @@ export class AiReposService {
             console.log("Loaded from dict cache");
             return {params: cached.params};
         }
-    
+        
         console.log("Loading from server");
         let fileURL = await firstValueFrom(this.storage.ref(AiReposService.createModelFile(name)).getDownloadURL());
         let blob = await firstValueFrom(this.httpClient.get(fileURL, {responseType: "blob"}));
