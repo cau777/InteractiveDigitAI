@@ -6,6 +6,7 @@ from codebase.nn.layers import *
 from codebase.nn.layers.activation import ReluLayer
 from codebase.nn.loss_functions import CrossEntropyLossFunction
 from codebase.nn.lr_optimizers import AdamLrOptimizer
+from codebase.nn.utils import to_flat_list
 from codebase.persistence.utils import load_compressed_classification
 
 
@@ -62,8 +63,7 @@ class ClientInterface(ClientInterfaceBase):
     def eval(self):
         # inputs: list[float]
         result = self.network.evaluate_single(np.array(self.params["inputs"], dtype="float32").reshape((1, 28, 28)))
-        print(result)
-        return list(result)
+        return to_flat_list(result)
 
     def benchmark(self):
         return self.network.benchmark((28, 28))
