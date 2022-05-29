@@ -1,55 +1,41 @@
 // noinspection JSFileReferences
 /// <reference lib="webworker" />
 
-import {PyodideInitMessage, PyodideResultMessage, PyodideWorkerMessage} from "./pyodide-worker-messages";
+import {PyodideOutputMessage, PyodideWorkerMessage} from "./pyodide-worker-messages";
 import {PyodideWorkerLogic} from "./pyodide/pyodide-worker-logic";
 
 importScripts("https://cdn.jsdelivr.net/pyodide/v0.20.0/full/pyodide.js");
 
-let worker: PyodideWorkerLogic | undefined = undefined;
-let working: boolean = false;
-
-async function initWorker(data: PyodideInitMessage) {
-    worker = new PyodideWorkerLogic(data.libs, data.libsArchives);
+function stdCallback(content: string, isError: boolean) {
+    if (!content) return;
+    let message: PyodideOutputMessage = {
+        action: "output",
+        content: content,
+        isError: isError
+    };
+    postMessage(message);
 }
 
+let worker: PyodideWorkerLogic  = new PyodideWorkerLogic();
+
 function selectAction(data: PyodideWorkerMessage): Promise<unknown | undefined> {
-    if (worker === undefined) {
-        if (data.action !== "init") throw new Error("Worker not initialized");
-        return initWorker(data);
-    }
-    
     switch (data.action) {
+        case "load":
+            return worker.load(data.libs, data.libsArchives, stdCallback);
         case "select":
             return worker.select(data.code, data.params);
         case "run":
-            return worker.run(data.expression, data.params);
+            return worker.run(data.expression, data.params, stdCallback);
     }
-    throw new RangeError();
-}
-
-function postResult(r: PyodideResultMessage) {
-    // console.log("Worker posted result " + JSON.stringify(r));
-    postMessage(r);
+    throw new RangeError(data.action);
 }
 
 addEventListener("message", ({data}: { data: PyodideWorkerMessage }) => {
-    // console.log("Worker received message " + JSON.stringify(data));
-    if (working) throw new Error("Worker is already busy");
+    let action = selectAction(data);
     
-    try {
-        let action = selectAction(data);
-        
-        working = true;
-        action.then(r => {
-            postResult({action: "result", content: r});
-            working = false;
-        }, e => {
-            working = false;
-            throw e;
-        });
-    } catch (e) {
-        working = false;
+    action.then(r => {
+        postMessage({action: "result", content: r});
+    }, e => {
         throw e;
-    }
+    });
 });

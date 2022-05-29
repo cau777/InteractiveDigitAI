@@ -1,38 +1,39 @@
-import {IPyodide} from "./ipyodide";
-import {PyConsole} from "./py-console";
-import {PyProxy} from "./pyproxy";
-import {PyodideOutputMessage} from "../pyodide-worker-messages";
 import {ObjDict} from "../utils";
+import {IPyodideRunner, PythonRunCallback} from "./IPyodideRunner";
+import {PyConsole} from "./py-console";
+import {IPyodide} from "./ipyodide";
+import {PyProxy} from "./pyproxy";
 
-export class PyodideWorkerLogic {
-    private readonly pyodidePromise: Promise<IPyodide>;
-    private pyconsole?: PyConsole;
+declare function loadPyodide(): Promise<IPyodide>;
+
+function assertInit(pyodide: IPyodide | undefined): asserts pyodide is IPyodide {
+    if (pyodide === undefined) throw new ReferenceError("load() should be called first");
+}
+
+export class PyodideWorkerLogic implements IPyodideRunner {
+    private pyodide?: IPyodide;
+    private console?: PyConsole;
     
-    public constructor(private libs: string[],
-                       private libsArchives: ArrayBuffer[]) {
-        this.pyodidePromise = this.prepareEnv();
-    }
-    
-    private async prepareEnv(): Promise<IPyodide> {
+    public async load(libs: string[], libsArchives: ArrayBuffer[], output: PythonRunCallback) {
         let pyodide = await loadPyodide();
         
-        await pyodide.loadPackage(this.libs, o => PyodideWorkerLogic.stdCallback(o.trim(), false),
-            o => PyodideWorkerLogic.stdCallback(o.trim(), true));
+        await pyodide.loadPackage(libs, o => output(o.trim(), false), o => output(o.trim(), true));
         
-        for (const lib of this.libsArchives)
-            await pyodide.unpackArchive(lib, "wheel");
+        for (const lib of libsArchives)
+            pyodide.unpackArchive(lib as any, "wheel");
         
-        return pyodide;
+        this.pyodide = pyodide;
     }
     
     public async select(code: string, params: ObjDict<any>) {
+        assertInit(this.pyodide);
         let namespace: PyProxy | undefined = undefined;
         let instance: PyProxy | undefined = undefined;
         
         try {
-            let pyodide = await this.pyodidePromise;
-            if (this.pyconsole !== undefined)
-                this.pyconsole.destroy();
+            let pyodide = this.pyodide;
+            if (this.console !== undefined)
+                this.console.destroy();
             
             namespace = pyodide.globals.get("dict")();
             let pyParams = pyodide.toPy(params);
@@ -45,27 +46,26 @@ export class PyodideWorkerLogic {
             });
             
             instance = namespace!.get("instance");
-            let pyconsole: PyConsole = instance.console.copy();
-            pyconsole.globals.update(namespace);
+            let console: PyConsole = instance.console.copy();
+            console.globals.update(namespace);
             
-            pyconsole.stdout_callback = (o: string) => PyodideWorkerLogic.stdCallback(o.trim(), false);
-            pyconsole.stderr_callback = (o: string) => PyodideWorkerLogic.stdCallback(o.trim(), true);
-            
-            this.pyconsole = pyconsole;
+            this.console = console;
         } finally {
             namespace?.destroy();
             instance?.destroy();
         }
     }
     
-    public async run(expression: string, params: ObjDict<any>) {
-        if (this.pyconsole === undefined)
+    public async run(expression: string, params: ObjDict<any>, callback: PythonRunCallback) {
+        assertInit(this.pyodide);
+        if (this.console === undefined)
             throw new Error("No script selected");
+        this.setCallback(callback);
         
         await this.setParams(params);
-        const result = await this.pyconsole.push(expression);
+        const result = await this.console.push(expression);
         
-        let pyodide = await this.pyodidePromise;
+        let pyodide = await this.pyodide;
         if (pyodide.isPyProxy(result)) {
             let js = result.toJs({create_pyproxies: false, dict_converter: Object.fromEntries});
             result.destroy();
@@ -77,27 +77,21 @@ export class PyodideWorkerLogic {
     }
     
     private async setParams(params: ObjDict<any>) {
-        let pyodide = await this.pyodidePromise;
-        let pyParams = pyodide.toPy(params);
-        let instance = this.pyconsole.globals.get("instance");
+        let pyParams = this.pyodide!.toPy(params);
+        let instance = this.console!.globals.get("instance");
         instance.params.update(pyParams);
         pyParams.destroy();
     }
     
     private async clearParams() {
-        let instance = this.pyconsole.globals.get("instance");
+        let instance = this.console!.globals.get("instance");
         instance.params.clear();
     }
     
-    private static stdCallback(content: string, isError: boolean) {
-        if (!content) return;
-        let message: PyodideOutputMessage = {
-            action: "output",
-            content: content,
-            isError: isError
-        };
-        postMessage(message);
+    private setCallback(callback: PythonRunCallback | undefined) {
+        if (callback === undefined) return;
+        this.console!.stdout_callback = (o: string) => callback(o.trim(), false);
+        this.console!.stderr_callback = (o: string) => callback(o.trim(), true);
     }
 }
 
-declare function loadPyodide(): Promise<IPyodide>;

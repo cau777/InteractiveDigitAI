@@ -1,17 +1,13 @@
-import {Injectable} from '@angular/core';
+import {Inject, Injectable} from '@angular/core';
 import {firstValueFrom} from "rxjs";
-import {
-    PyodideInitMessage,
-    PyodideRunMessage,
-    PyodideSelectMessage,
-    PyodideWorkerMessage
-} from "./pyodide-worker-messages";
 import {AiName} from "./ai-repos.service";
 import {ObjDict} from "./utils";
 import {AssetsHttpClientService} from "./assets-http-client.service";
+import {IPyodideRunner, PythonRunCallback} from "./pyodide/IPyodideRunner";
+import {PyodideWorkerInterface} from "./pyodide/PyodideWorkerInterface";
+import {DOCUMENT} from "@angular/common";
 
 export type ScriptName = "test" | AiName;
-export type PythonRunCallback = (content: string, isError: boolean) => void;
 
 const loadingPrefix = "Loading Pyodide";
 
@@ -21,51 +17,47 @@ const loadingPrefix = "Loading Pyodide";
     providedIn: 'root'
 })
 export class PythonRunnerService {
-    public loadError?: string;
     public loadStatus?: string = loadingPrefix;
-    private readonly worker: Promise<Worker>;
+    private readonly pyodideInterface: Promise<IPyodideRunner>;
     private loaded?: ScriptName;
+    private window: Window;
     
-    public constructor(private assetsClient: AssetsHttpClientService) {
-        this.worker = this.initWorker();
+    public constructor(private assetsClient: AssetsHttpClientService,
+                       @Inject(DOCUMENT) document: Document) {
+        this.pyodideInterface = this.prepare();
+        this.window = document.defaultView as Window;
     }
     
     public async loadScript(name: ScriptName, params: ObjDict<any> = {}) {
         if (name === this.loaded) return;
-        let worker = await this.worker;
-        
         let code = await this.getCode(name);
-        let message: PyodideSelectMessage = {action: "select", code: code, params: params};
-        await this.waitWorker(worker, message);
+        
+        await (await this.pyodideInterface).select(code, params);
         
         console.log(name + " loaded");
         this.loaded = name;
     }
     
     public async run(code: string, params: ObjDict<any> = {}, output?: PythonRunCallback) {
-        let message: PyodideRunMessage = {
-            action: "run",
-            expression: code,
-            params: params
-        };
-        let worker = await this.worker;
-        return await this.waitWorker(worker, message, output, e => output?.(e, true));
+        return (await this.pyodideInterface).run(code, params, output);
     }
     
-    private async initWorker() {
-        if (typeof Worker === "undefined") throw TypeError("Workers are not supported in your system") // TODO: add support without workers
-        let worker = new Worker(new URL("./pyodide.worker", import.meta.url));
-        
+    private async prepare() {
         let archives = await this.loadLibsArchives("python/codebase-0.0.1-py3-none-any");
         let libs = ["numpy"];
-        let init: PyodideInitMessage = {action: "init", libsArchives: archives, libs: libs};
+        let callback: PythonRunCallback = (content, isError) => {
+            if (isError) this.window.alert(content);
+            else this.loadStatus = loadingPrefix + ": " + content;
+        }
         
-        await this.waitWorker(worker, init, content => this.loadStatus = loadingPrefix + ": " + content,
-            content => this.loadError = "ERROR: " + content);
+        // Adding support without web workers is not necessary because almost all browsers that support wasm also support worker
+        if (typeof Worker === "undefined") throw new Error("Support for web workers is required");
         
+        let pyodideInterface = new PyodideWorkerInterface();
+        
+        await pyodideInterface.load(libs, archives, callback);
         this.loadStatus = undefined;
-        
-        return worker;
+        return pyodideInterface;
     }
     
     private async loadLibsArchives(...names: string[]) {
@@ -74,29 +66,6 @@ export class PythonRunnerService {
             libs.push(await firstValueFrom(this.assetsClient.get(name + ".whl", {responseType: "arraybuffer"})));
         }
         return libs;
-    }
-    
-    private async waitWorker(worker: Worker, message: any, outputCallback?: PythonRunCallback, errorCallback?: (content: string) => void) {
-        return new Promise<any>((resolve, reject) => {
-            worker.postMessage(message);
-            
-            worker.addEventListener("error", (e) => {
-                console.error(e);
-                errorCallback?.(e.message);
-                reject(e);
-            });
-            
-            worker.addEventListener("message", e => {
-                let data: PyodideWorkerMessage = e.data;
-                
-                if (data.action === "output") {
-                    outputCallback?.(data.content, data.isError);
-                } else if (data.action === "result") {
-                    resolve(data.content);
-                    worker.removeAllListeners?.();
-                }
-            });
-        });
     }
     
     private async getCode(name: ScriptName): Promise<string> {

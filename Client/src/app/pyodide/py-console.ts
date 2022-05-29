@@ -1,5 +1,4 @@
 import {PyProxy} from "./pyproxy";
-import {IConsoleFuture} from "./iconsole-future";
 
 export type PyConsole = {
     stdout_callback: (message: string) => void;
@@ -7,4 +6,9 @@ export type PyConsole = {
     globals: any;
     
     push(line: string): IConsoleFuture;
-} | PyProxy;
+} & PyProxy;
+
+export interface IConsoleFuture extends Promise<any> {
+    syntax_check: "incomplete" | "complete" | "syntax-error";
+    formatted_error: string;
+}

@@ -1,7 +1,7 @@
 import {ObjDict} from "./utils";
 
-export type PyodideInitMessage = {
-    action: "init";
+export type PyodideLoadMessage = {
+    action: "load";
     libsArchives: ArrayBuffer[];
     libs: string[];
 }
@@ -34,4 +34,4 @@ export type PyodideResultMessage = {
 }
 
 export type PyodideWorkerMessage = PyodideSelectMessage | PyodideRunMessage | PyodideOutputMessage |
-    PyodideInitMessage | PyodideResultMessage | PyodideCloseMessage;
+    PyodideLoadMessage | PyodideResultMessage | PyodideCloseMessage;
