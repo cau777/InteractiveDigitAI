@@ -2,8 +2,8 @@ import argparse
 import os
 import numpy as np
 from typing import BinaryIO
-from codebase.nn.training_example import ClassificationExample
-from codebase.persistence import save_compressed_classification
+from codebase.nn.prediction_example import create_classification_example
+from codebase.persistence import save_compressed
 
 
 def read_int(stream: BinaryIO):
@@ -51,15 +51,15 @@ def load_labels(path: str):
 
 def save(out_path: str, data):
     with open(os.path.join(out_path), "wb") as f:
-        compressed = save_compressed_classification("mnist", data)
+        compressed = save_compressed("mnist", data)
         f.write(compressed)
 
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("images", help="path to the test images file downloaded from http://yann.lecun.com/exdb/mnist/")
-    parser.add_argument("labels", help="path to the train labels file downloaded from http://yann.lecun.com/exdb/mnist/")
-    parser.add_argument("out", help="path to the output directory")
+    parser.add_argument("images", help="path to the images file downloaded from http://yann.lecun.com/exdb/mnist/")
+    parser.add_argument("labels", help="path to the labels file downloaded from http://yann.lecun.com/exdb/mnist/")
+    parser.add_argument("out", help="path to the output file")
 
     args = parser.parse_args()
     (rows, cols, images_data) = load_images(args.images)
@@ -68,7 +68,7 @@ def main():
     data = []
 
     for index, (image, label) in enumerate(zip(images_data, labels_data)):
-        example = ClassificationExample(np.array(image), label, 10)
+        example = create_classification_example(np.array(image), label, 10)
         data.append(example)
 
     save(args.out, data)

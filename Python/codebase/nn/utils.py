@@ -1,5 +1,5 @@
 import random
-from typing import TypeVar, Sequence, Any
+from typing import TypeVar, Sequence
 
 import numpy as np
 
@@ -33,8 +33,3 @@ def get_dims_after_filter(shape: tuple[int, ...], size: int, stride: int):
         (shape[-2] - size) // stride + 1,
         (shape[-1] - size) // stride + 1
     )
-
-
-def to_flat_list(arr: np.ndarray) -> list[float]:
-    result: Any = arr.flatten().tolist()
-    return result

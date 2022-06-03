@@ -3,7 +3,7 @@ from typing import Sequence
 import numpy as np
 
 from codebase.general_utils import split_array
-from codebase.nn import BatchConfig, TrainingExample
+from codebase.nn import BatchConfig, PredictionExample
 from codebase.nn.layers import NNLayer
 from codebase.nn.loss_functions import LossFunction
 from codebase.nn.measure_trackers import create_tracker
@@ -29,7 +29,7 @@ class NeuralNetworkController:
     def classify_batch(self, inputs: np.ndarray):
         return np.argmax(self.evaluate_batch(inputs), -1)
 
-    def train(self, data: Sequence[TrainingExample], epochs: int, batch_size: int = -1, measure: list[str] = None) \
+    def train(self, data: Sequence[PredictionExample], epochs: int, batch_size: int = -1, measure: list[str] = None) \
             -> list[dict[str]]:
         if batch_size == -1:
             batch_size = self.find_best_batch_size()
@@ -46,7 +46,7 @@ class NeuralNetworkController:
             print(f"Started {e} epoch")
             config = BatchConfig(True, self.version)
 
-            mini_batch_examples: list[TrainingExample] = select_random(data, batch_size)
+            mini_batch_examples: list[PredictionExample] = select_random(data, batch_size)
             inputs = np.stack([example.inputs for example in mini_batch_examples])
             labels = np.stack([example.label for example in mini_batch_examples])
 
@@ -74,7 +74,7 @@ class NeuralNetworkController:
 
         return measures_result
 
-    def test(self, data: Sequence[TrainingExample], measure: list[str] = None, batch_size: int = -1):
+    def test(self, data: Sequence[PredictionExample], measure: list[str] = None, batch_size: int = -1):
         if batch_size == -1:
             batch_size = self.find_best_batch_size()
 

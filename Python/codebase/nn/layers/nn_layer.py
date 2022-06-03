@@ -18,8 +18,7 @@ class NNLayer(ABC):
     def train(self, config: BatchConfig):
         pass
 
-    @property
-    def trainable_params_count(self) -> int:
+    def count_trainable_params(self) -> int:
         return 0
 
     def get_trainable_params(self) -> list[float]:

@@ -6,7 +6,7 @@ from codebase.general_utils import take_iter
 from codebase.nn import BatchConfig
 from codebase.nn.layers import NNLayer
 from codebase.nn.lr_optimizers import LrOptimizer
-from codebase.nn.utils import to_flat_list
+from codebase.general_utils import to_flat_list
 
 
 class DenseLayer(NNLayer):
@@ -63,7 +63,7 @@ class DenseLayer(NNLayer):
             self.biases += self.biases_optimizer.optimize(self.biases_grad, config)
             self.biases_grad *= 0
 
-    def trainable_params_count(self) -> int:
+    def count_trainable_params(self) -> int:
         return self.weights.size + self.biases.size
 
     def get_trainable_params(self) -> list[float]:

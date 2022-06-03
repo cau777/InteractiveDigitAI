@@ -28,8 +28,8 @@ class SequentialLayer(NNLayer):
         for layer in self.layers:
             layer.train(config)
 
-    def trainable_params_count(self) -> int:
-        return sum(map(lambda layer: layer.trainable_params_count, self.layers))
+    def count_trainable_params(self) -> int:
+        return sum(map(lambda layer: layer.count_trainable_params(), self.layers))
 
     def get_trainable_params(self) -> list[float]:
         result = []

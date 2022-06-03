@@ -19,6 +19,14 @@ function formatObjDict(obj: ObjDict<any>) {
     return Object.entries(obj).map(([key, val]) => key + "=" + val).join(" ");
 }
 
+const trainSets = {
+    digit_recognition: "mnist_train.dat"
+};
+
+const testSets = {
+    digit_recognition: "mnist_test.dat"
+}
+
 @Component({
     selector: 'app-train-main',
     templateUrl: './train-main.component.html',
@@ -64,12 +72,12 @@ export class TrainMainComponent {
             this.prevModels.set(name, await this.pythonRunner.run("instance.save()"));
         
         if (this.model.action === "train") {
-            await this.loadTrainSet();
+            await this.loadTrainSet(name);
             let result: ObjDict<any>[] = await this.pythonRunner.run("instance.train()", {epochs: this.model.epochs}, callback);
             this.result = result.map((val, index) => `Epoch ${index} with ${formatObjDict(val)}`);
             await this.saveAi(name);
         } else if (this.model.action === "test") {
-            await this.loadTestSet();
+            await this.loadTestSet(name);
             let result = await this.pythonRunner.run("instance.test()", {}, callback);
             this.result = [`Metrics: ${formatObjDict(result)}`];
         }
@@ -89,16 +97,16 @@ export class TrainMainComponent {
         this.prevModels.set(name, current);
     }
     
-    private async loadTrainSet() {
+    private async loadTrainSet(name: AiName) {
         if (this.loadedTrainSet) return;
-        let data = await firstValueFrom(this.assetsClient.get("mnist_train.dat", {responseType: "arraybuffer"}));
+        let data = await firstValueFrom(this.assetsClient.get(trainSets[name], {responseType: "arraybuffer"}));
         await this.pythonRunner.run("instance.load_train_set()", {data: arrayBufferToString(data)});
         this.loadedTrainSet = true;
     }
     
-    private async loadTestSet() {
+    private async loadTestSet(name: AiName) {
         if (this.loadedTestSet) return;
-        let data = await firstValueFrom(this.assetsClient.get("mnist_test.dat", {responseType: "arraybuffer"}));
+        let data = await firstValueFrom(this.assetsClient.get(testSets[name], {responseType: "arraybuffer"}));
         await this.pythonRunner.run("instance.load_test_set()", {data: arrayBufferToString(data)});
         this.loadedTestSet = true;
     }

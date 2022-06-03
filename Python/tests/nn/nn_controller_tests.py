@@ -3,7 +3,7 @@ import unittest
 
 import numpy as np
 
-from codebase.nn import NeuralNetworkController, TrainingExample, BatchConfig
+from codebase.nn import NeuralNetworkController, PredictionExample, BatchConfig
 from codebase.nn.layers import *
 from codebase.nn.layers.activation import *
 from codebase.nn.loss_functions import MseLossFunction, CrossEntropyLossFunction
@@ -64,7 +64,7 @@ class MyTestCase(unittest.TestCase):
             DenseLayer.create_random(64, 10, AdamLrOptimizer(), AdamLrOptimizer()),
         ), MseLossFunction())
 
-        examples = [TrainingExample(np.random.rand(10), np.random.rand(10)) for _ in range(64)]
+        examples = [PredictionExample(np.random.rand(10), np.random.rand(10)) for _ in range(64)]
 
         controller.train(examples, 100, measure=["avg_loss"])
         results = controller.test(examples, measure=["avg_loss"])
@@ -89,7 +89,7 @@ class MyTestCase(unittest.TestCase):
             DenseLayer.create_random(64, 10, AdamLrOptimizer(), AdamLrOptimizer())
         ), CrossEntropyLossFunction())
 
-        data = [TrainingExample(np.random.rand(1, 28, 28), np.random.rand(10)) for _ in range(100)]
+        data = [PredictionExample(np.random.rand(1, 28, 28), np.random.rand(10)) for _ in range(100)]
         network.train(data, 5)
         before = network.test(data)
 
@@ -109,7 +109,7 @@ class MyTestCase(unittest.TestCase):
     def test_classification_conv(self):
         controller = conv_controller()
 
-        examples = [TrainingExample(np.random.rand(1, 28, 28), np.zeros(10)) for _ in range(64)]
+        examples = [PredictionExample(np.random.rand(1, 28, 28), np.zeros(10)) for _ in range(64)]
         for e in examples:
             e.label[random.randint(0, 9)] = 1.0
         controller.train(examples, 50, measure=["accuracy"])
