@@ -8,11 +8,9 @@ import {environment} from "../environments/environment";
     styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
-    public title = 'AIPlayground';
-    
     public constructor(private translateService: TranslateService) {
         this.translateService.setDefaultLang("en");
-        let lang = environment.production ? (this.translateService.getBrowserLang() || "en") : "en";
+        let lang = environment.production ? (this.translateService.getBrowserLang() || "en") : "pt";
         console.log("Selected language: ", lang)
         this.translateService.use(lang);
     }

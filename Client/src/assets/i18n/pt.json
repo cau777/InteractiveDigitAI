@@ -15,7 +15,7 @@
 	
     "Home": {
         "Welcome": "Bem vindo(a)!",
-        "Description": "Esta é uma coleção de diferentes projetos envolvendo IA que estou criando no meu tempo livre para aprender sobre o tópico.\nEste site é feito com Angular (SCSS e Angular Material para estilização).\nA IA é feita com Python e numpy. Eu decidi não usar frameworks como Tensorflow, mas implementá-la do zero para aprender a matemática por trás de Deep Learning.\nO processo de treinamento acontece completamente no seu navegador, usando Pyodide para executar scripts em Python. Qualquer um pode contribuir para melhorar os modelos de IA usando a página 'Treinar'.\nNo futuro, pretendo adicionar outros projetos envolvendo áudio, texto, and jogos como Xadrez.\nUse o menu lateral sidebar para explorar os projetos. Aproveite!"
+        "Description": "Esta é uma IA feita para reconhecer dígitos escritos por usuários. Ela foi treinada usando a base de dados MNIST com cross entropy como função de custo. Ela usa uma combinação de camadas de Convolução, MaxPool, Densa, Dropout, e ReLu.\nEste site é feito com Angular (SCSS e Angular Material para estilização).\nA IA é feita com Python e numpy. Eu decidi não usar frameworks como Tensorflow, mas implementá-la do zero para aprender a matemática por trás de Deep Learning.\nO processo de treinamento acontece completamente no seu navegador, usando Pyodide para executar scripts em Python. Qualquer um pode contribuir para melhorar os modelos de IA usando a página 'Treinar'. Aproveite!"
     },
 	"Drawer": {
 		"Home": "Página inicial",

@@ -83,7 +83,6 @@ export class AiReposService {
         await this.saveModelInfo(name, {version: 1, hash: hash});
     }
     
-    // TODO: avoid conflicts
     public async saveModelChanges(name: AiName, prev: AiModel, n: AiModel) {
         const paramsDelta = zip(n.params, prev.params).map(o => o[0] - o[1]);
         

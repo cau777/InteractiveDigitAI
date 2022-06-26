@@ -2,14 +2,14 @@
     <div class="header-wrapper">
         <nav class="navbar">
             <div class="flex-center">
-                <a mat-button class="navbar-brand" routerLink="/" [routerLinkActive]="'active'">AI Playground</a>
+                <a mat-button class="navbar-brand" routerLink="/" [routerLinkActive]="'active'">Interactive Digit AI</a>
                 <div class="d-flex flex-row" *ngIf="pythonRunner.loadStatus">
                     <mat-spinner color="accent" [diameter]="24"></mat-spinner>
                     {{pythonRunner.loadStatus}}
                 </div>
             </div>
             <div class="ml-auto">
-                <a mat-button href="https://www.github.com/cau777/AIPlayground">
+                <a mat-button href="https://www.github.com/cau777/InteractiveDigitAI">
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                          class="bi bi-github" viewBox="0 0 16 16">
                         <path
