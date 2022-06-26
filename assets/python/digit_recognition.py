@@ -6,8 +6,8 @@ from codebase.nn.layers import *
 from codebase.nn.layers.activation import ReluLayer
 from codebase.nn.loss_functions import CrossEntropyLossFunction
 from codebase.nn.lr_optimizers import AdamLrOptimizer
-from codebase.nn.utils import to_flat_list
-from codebase.persistence.utils import load_compressed_classification
+from codebase.general_utils import to_flat_list
+from codebase.persistence.utils import load_compressed
 
 
 class ClientInterface(ClientInterfaceBase):
@@ -70,11 +70,11 @@ class ClientInterface(ClientInterfaceBase):
 
     def load_train_set(self):
         # data: str
-        self.train_data = load_compressed_classification("mnist", ClientInterfaceBase.extract_bytes(self.params["data"]))
+        self.train_data = load_compressed("mnist", ClientInterfaceBase.extract_bytes(self.params["data"]))
 
     def load_test_set(self):
         # data: str
-        self.test_data = load_compressed_classification("mnist", ClientInterfaceBase.extract_bytes(self.params["data"]))
+        self.test_data = load_compressed("mnist", ClientInterfaceBase.extract_bytes(self.params["data"]))
 
 
 instance = ClientInterface()
