@@ -26,3 +26,8 @@ model is stored in public Firebase storage (just be careful of overfitting!).
 * Styling using SCSS and Angular Material
 * Hosted page in GitHub Pages
 * Auto deploy using GitHub Actions
+
+## Screenshots
+* ![In action](https://github.com/cau777/InteractiveDigitAI/blob/master/Screenshots/Action.png)
+* ![Test](https://github.com/cau777/InteractiveDigitAI/blob/master/Screenshots/Test.png)
+* ![Train](https://github.com/cau777/InteractiveDigitAI/blob/master/Screenshots/Train.png)
