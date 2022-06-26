@@ -22,6 +22,7 @@ model is stored in public Firebase storage (just be careful of overfitting!).
   * Home: small introduction
   * Train: where users can train the AI model for a specified number of epochs
   * Digit recognition: where users can draw their digits on a canvas and the AI tries to guess it
+* Translation to Portuguese and English using ngx-translate
 * Firebase Storage integration
 * Styling using SCSS and Angular Material
 * Hosted page in GitHub Pages
