@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1656269248172,
+  "timestamp": 1656269609881,
   "index": "/InteractiveDigitAI/index.html",
   "assetGroups": [
     {
@@ -18,7 +18,7 @@
         "/InteractiveDigitAI/917.b47f9d1027df24af.js",
         "/InteractiveDigitAI/favicon.ico",
         "/InteractiveDigitAI/index.html",
-        "/InteractiveDigitAI/main.6c53be7b47e81e2b.js",
+        "/InteractiveDigitAI/main.937a55b83efcab30.js",
         "/InteractiveDigitAI/manifest.webmanifest",
         "/InteractiveDigitAI/polyfills.53d36fd2a305790d.js",
         "/InteractiveDigitAI/runtime.19d9659a23ef382c.js",
@@ -87,12 +87,12 @@
     "/InteractiveDigitAI/assets/icons/icon-96x96.png": "3914125a4b445bf111c5627875fc190f560daa41",
     "/InteractiveDigitAI/assets/mnist_test.dat": "46c621e129fd18d8edc234097873efe19a9ec6c5",
     "/InteractiveDigitAI/assets/mnist_train.dat": "77c0be0acf304806f9c06ed08573815bbdc4cd4c",
-    "/InteractiveDigitAI/assets/python/codebase-0.0.1-py3-none-any.whl": "9efbc279ef94ea5a430e108badc2856f642acbe8",
+    "/InteractiveDigitAI/assets/python/codebase-0.0.1-py3-none-any.whl": "78e1bd95971b64f96037be27f4228a334577b918",
     "/InteractiveDigitAI/assets/python/digit_recognition.py": "c05b192d7cac7a89769371d8415e42705eb233ed",
     "/InteractiveDigitAI/assets/python/test.py": "7d0ff4195c8713056e157c66a6a2ae7b70dc4e01",
     "/InteractiveDigitAI/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/InteractiveDigitAI/index.html": "e03c23b28afa40668a216728e3ba5f154ff8732b",
-    "/InteractiveDigitAI/main.6c53be7b47e81e2b.js": "e7841800453ced7a5fbb67181bb2c7e851644f87",
+    "/InteractiveDigitAI/index.html": "f377109dc1caee8ca3bf3d337d237cb4ced3091d",
+    "/InteractiveDigitAI/main.937a55b83efcab30.js": "b4a9f68bb2258aa3bae43b8369ec42d9b822c70b",
     "/InteractiveDigitAI/manifest.webmanifest": "cd6cc7500d839b3df49e11c6bae6b1d7223cc887",
     "/InteractiveDigitAI/polyfills.53d36fd2a305790d.js": "a3c2da8d8e44ed8aa52f2aa8b839d67921068822",
     "/InteractiveDigitAI/runtime.19d9659a23ef382c.js": "11a4bb634c447b9d06ea36bed90645b75e9d867e",
